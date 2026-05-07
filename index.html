@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>BidWise — AI Tender Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0B0F1A;--ink2:#2E3547;--ink3:#6B7280;--ink4:#9CA3AF;
+  --gold:#D4A853;--gold2:#E8C47A;--gold3:#FDF6E8;--gold-dark:#A67C2E;
+  --bg:#F5F3EF;--surface:#FFFFFF;--surface2:#FAF9F6;--surface3:#F0EDE5;
+  --border:#E5E0D5;--border2:#D4CEC0;
+  --success:#166534;--success-bg:#DCFCE7;--success-border:#86EFAC;
+  --warn:#92400E;--warn-bg:#FEF3C7;--warn-border:#FCD34D;
+  --danger:#991B1B;--danger-bg:#FEE2E2;--danger-border:#FCA5A5;
+  --info:#1E40AF;--info-bg:#DBEAFE;--info-border:#93C5FD;
+  --radius:10px;--radius-lg:16px;--radius-xl:24px;
+  --shadow:0 1px 3px rgba(0,0,0,.06),0 4px 12px rgba(0,0,0,.04);
+  --shadow-md:0 4px 16px rgba(0,0,0,.08),0 1px 4px rgba(0,0,0,.04);
+}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+
+/* ── SCREENS ── */
+.screen{display:none;min-height:100vh}
+.screen.active{display:flex;flex-direction:column}
+
+/* ══════════════════════════════════════
+   AUTH SCREEN
+══════════════════════════════════════ */
+#auth-screen{background:var(--ink);align-items:center;justify-content:center;padding:2rem;position:relative;overflow:hidden}
+#auth-screen::before{content:'';position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(212,168,83,.12) 0%,transparent 70%);top:-100px;right:-200px}
+#auth-screen::after{content:'';position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(212,168,83,.07) 0%,transparent 70%);bottom:-100px;left:-100px}
+.auth-box{background:#151B2B;border:1px solid rgba(212,168,83,.2);border-radius:var(--radius-xl);padding:2.5rem;width:100%;max-width:420px;position:relative;z-index:1;box-shadow:0 24px 48px rgba(0,0,0,.4)}
+.auth-logo{display:flex;align-items:center;gap:10px;margin-bottom:2rem;justify-content:center}
+.auth-logo-icon{width:44px;height:44px;border-radius:10px;background:var(--gold);display:flex;align-items:center;justify-content:center}
+.auth-logo-icon i{color:var(--ink);font-size:22px}
+.auth-brand{font-family:'Playfair Display',serif;font-size:24px;color:#fff}
+.auth-brand span{color:var(--gold)}
+.auth-tagline{font-size:12px;color:#6B7280;text-align:center;margin-top:-.5rem;margin-bottom:1.75rem}
+.auth-tabs{display:flex;background:#0D1321;border-radius:8px;padding:3px;margin-bottom:1.5rem}
+.auth-tab{flex:1;padding:8px;text-align:center;font-size:13px;font-weight:500;color:#6B7280;cursor:pointer;border-radius:6px;transition:all .2s}
+.auth-tab.active{background:#1E2A3F;color:var(--gold)}
+.auth-field{margin-bottom:1rem}
+.auth-field label{display:block;font-size:12px;color:#9CA3AF;margin-bottom:5px}
+.auth-field input{width:100%;background:#0D1321;border:1px solid #2D3748;border-radius:8px;padding:10px 12px;font-size:13px;color:#fff;outline:none;transition:border .15s;font-family:'Outfit',sans-serif}
+.auth-field input:focus{border-color:var(--gold)}
+.auth-field input::placeholder{color:#4A5568}
+.auth-btn{width:100%;padding:11px;border-radius:8px;background:var(--gold);color:var(--ink);font-size:14px;font-weight:600;border:none;cursor:pointer;font-family:'Outfit',sans-serif;transition:background .15s;margin-top:.5rem}
+.auth-btn:hover{background:var(--gold2)}
+.auth-error{font-size:12px;color:#F87171;margin-top:.75rem;text-align:center;min-height:18px}
+.auth-free-note{font-size:11px;color:#6B7280;text-align:center;margin-top:.75rem}
+.auth-free-note span{color:var(--gold)}
+
+/* ══════════════════════════════════════
+   APP SHELL
+══════════════════════════════════════ */
+#app-screen{background:var(--bg)}
+
+/* NAV */
+.nav{background:var(--ink);height:58px;display:flex;align-items:center;padding:0 1.5rem;gap:1rem;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.nav-logo{display:flex;align-items:center;gap:9px;text-decoration:none}
+.nav-logo-icon{width:30px;height:30px;background:var(--gold);border-radius:7px;display:flex;align-items:center;justify-content:center}
+.nav-logo-icon i{color:var(--ink);font-size:16px}
+.nav-brand-text{font-family:'Playfair Display',serif;font-size:18px;color:#fff}
+.nav-brand-text span{color:var(--gold)}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.nav-user{font-size:12px;color:#9CA3AF}
+.nav-plan{font-size:11px;padding:3px 9px;border-radius:20px;background:rgba(212,168,83,.15);color:var(--gold);border:1px solid rgba(212,168,83,.3)}
+.nav-logout{background:transparent;border:1px solid #2D3748;color:#9CA3AF;padding:5px 12px;border-radius:6px;font-size:12px;cursor:pointer;font-family:'Outfit',sans-serif}
+.nav-logout:hover{border-color:#4A5568;color:#fff}
+
+/* TABS */
+.tabs{background:#0D1321;border-bottom:1px solid #1C2333;display:flex;padding:0 1.5rem;overflow-x:auto}
+.tab{padding:11px 16px;font-size:13px;color:#6B7280;cursor:pointer;border-bottom:2px solid transparent;display:flex;align-items:center;gap:6px;white-space:nowrap;transition:all .15s}
+.tab:hover{color:#CBD5E0}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.tab i{font-size:14px}
+.tab-badge{background:var(--danger);color:#fff;font-size:9px;padding:1px 5px;border-radius:10px;font-weight:700}
+
+/* MAIN */
+.main{max-width:980px;margin:0 auto;padding:2rem 1.5rem}
+.page{display:none}
+.page.active{display:block}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem;margin-bottom:1.25rem;box-shadow:var(--shadow)}
+.card-title{font-family:'Playfair Display',serif;font-size:20px;color:var(--ink);margin-bottom:.25rem}
+.card-sub{font-size:13px;color:var(--ink3);margin-bottom:1.25rem;line-height:1.6}
+.sec-label{font-size:11px;font-weight:600;color:var(--ink3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:.6rem;display:flex;align-items:center;gap:5px}
+
+/* FORMS */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+.form-grid.three{grid-template-columns:1fr 1fr 1fr}
+.field{display:flex;flex-direction:column;gap:5px}
+.field.full{grid-column:1/-1}
+.field label{font-size:12px;font-weight:500;color:var(--ink2)}
+.field input,.field select,.field textarea{
+  background:var(--surface2);border:1px solid var(--border);border-radius:8px;
+  padding:9px 12px;font-size:13px;font-family:'Outfit',sans-serif;color:var(--ink);outline:none;transition:border .15s
+}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--gold);background:#fff}
+.field textarea{min-height:68px;resize:vertical}
+
+/* CHIPS */
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:1rem}
+.chip{padding:6px 13px;border-radius:20px;border:1px solid var(--border);font-size:12px;cursor:pointer;background:var(--surface);color:var(--ink2);display:flex;align-items:center;gap:5px;transition:all .15s}
+.chip:hover{border-color:var(--border2);background:var(--surface2)}
+.chip.sel{background:var(--gold3);border-color:var(--gold);color:var(--gold-dark);font-weight:500}
+.chip i{font-size:13px}
+
+/* BUTTONS */
+.btn{padding:10px 22px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:7px;border:none;transition:all .15s;font-family:'Outfit',sans-serif}
+.btn-primary{background:var(--ink);color:var(--gold)}
+.btn-primary:hover{background:#1A2236}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed}
+.btn-gold{background:var(--gold);color:var(--ink)}
+.btn-gold:hover{background:var(--gold2)}
+.btn-outline{background:transparent;color:var(--ink2);border:1px solid var(--border)}
+.btn-outline:hover{background:var(--surface3)}
+.btn-danger{background:var(--danger-bg);color:var(--danger);border:1px solid var(--danger-border)}
+.btn i{font-size:15px}
+
+/* PROGRESS */
+.progress-wrap{margin-bottom:1.5rem}
+.progress-bar{height:7px;background:var(--surface3);border-radius:10px;overflow:hidden;margin-bottom:.4rem}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--gold-dark),var(--gold2));border-radius:10px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+.progress-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--ink3)}
+
+/* SCORE CARDS */
+.score-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.5rem}
+.score-card{background:var(--surface2);border-radius:var(--radius);padding:12px;text-align:center;border:1px solid var(--border)}
+.score-num{font-family:'Playfair Display',serif;font-size:26px;color:var(--ink)}
+.score-lbl{font-size:11px;color:var(--ink3);margin-top:2px}
+.score-card.highlight{background:var(--gold3);border-color:var(--gold)}
+.score-card.highlight .score-num{color:var(--gold-dark)}
+
+/* CHECKLIST */
+.cl-group{margin-bottom:1.25rem}
+.cl-group-title{font-size:11px;font-weight:600;color:var(--ink3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:.5rem;display:flex;align-items:center;gap:6px}
+.cl-group-title i{font-size:12px;color:var(--gold)}
+.checklist{display:flex;flex-direction:column;gap:5px}
+.cl-item{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-radius:9px;border:1px solid var(--border);background:var(--surface);cursor:pointer;transition:all .15s}
+.cl-item:hover{border-color:var(--border2);box-shadow:var(--shadow)}
+.cl-item.done{background:var(--success-bg);border-color:var(--success-border)}
+.cl-item.flagged{background:var(--danger-bg);border-color:var(--danger-border)}
+.cl-item.na-item{background:var(--surface2);opacity:.6}
+.cl-checkbox{width:18px;height:18px;border-radius:4px;border:2px solid var(--border2);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all .15s;font-size:10px;font-weight:700}
+.cl-item.done .cl-checkbox{background:var(--success);border-color:var(--success);color:#fff}
+.cl-item.done .cl-checkbox::after{content:'✓'}
+.cl-item.flagged .cl-checkbox{background:var(--danger);border-color:var(--danger);color:#fff}
+.cl-item.flagged .cl-checkbox::after{content:'!'}
+.cl-body{flex:1}
+.cl-name{font-size:13px;font-weight:500;color:var(--ink)}
+.cl-meta{font-size:11px;color:var(--ink3);margin-top:2px;line-height:1.5}
+.cl-tip{font-size:11px;color:var(--gold-dark);margin-top:4px;display:flex;align-items:flex-start;gap:4px}
+.cl-tip i{font-size:11px;margin-top:1px;flex-shrink:0}
+.cl-badge{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600;margin-left:auto;flex-shrink:0;align-self:flex-start}
+.cl-badge.req{background:var(--danger-bg);color:var(--danger)}
+.cl-badge.opt{background:var(--surface3);color:var(--ink3)}
+
+/* STATUS */
+.status-pill{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px}
+.status-pill.ready{background:var(--success-bg);color:var(--success);border:1px solid var(--success-border)}
+.status-pill.partial{background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn-border)}
+.status-pill.notready{background:var(--danger-bg);color:var(--danger);border:1px solid var(--danger-border)}
+.status-pill i{font-size:12px}
+
+/* TRACKER */
+.tracker-wrap{overflow-x:auto}
+.tracker{width:100%;border-collapse:collapse;font-size:13px}
+.tracker th{text-align:left;font-size:11px;font-weight:600;color:var(--ink3);text-transform:uppercase;letter-spacing:.6px;padding:8px 12px;border-bottom:2px solid var(--border);background:var(--surface2)}
+.tracker td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+.tracker tr:last-child td{border-bottom:none}
+.tracker tr:hover td{background:var(--surface2)}
+.doc-status{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;cursor:pointer;border:1px solid transparent;transition:all .15s}
+.doc-status:hover{opacity:.8}
+.doc-status.have{background:var(--success-bg);color:var(--success);border-color:var(--success-border)}
+.doc-status.missing{background:var(--danger-bg);color:var(--danger);border-color:var(--danger-border)}
+.doc-status.expired{background:var(--warn-bg);color:var(--warn);border-color:var(--warn-border)}
+.doc-status.na{background:var(--surface3);color:var(--ink3)}
+
+/* AI RESULT */
+.ai-result-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-md)}
+.ai-score-header{background:var(--ink);padding:1.5rem;display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap}
+.ai-score-circle{text-align:center;background:rgba(255,255,255,.05);border-radius:12px;padding:14px 22px;border:1px solid rgba(212,168,83,.2)}
+.ai-score-num{font-family:'Playfair Display',serif;font-size:38px;color:var(--gold)}
+.ai-score-lbl{font-size:11px;color:#6B7280;margin-top:2px}
+.ai-verdict-block h3{font-family:'Playfair Display',serif;font-size:20px;color:#fff;margin-bottom:.4rem}
+.ai-verdict-block p{font-size:13px;color:#9CA3AF;line-height:1.6;max-width:460px}
+.ai-sections{padding:1.5rem}
+.ai-sec{margin-bottom:1.25rem;padding-bottom:1.25rem;border-bottom:1px solid var(--border)}
+.ai-sec:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.ai-sec.highlight{background:var(--gold3);border-radius:10px;padding:1rem 1.25rem;border:1px solid var(--gold)}
+.ai-sec.highlight .ai-sec-title{color:var(--gold-dark)}
+.ai-sec-title{font-size:12px;font-weight:600;color:var(--ink2);display:flex;align-items:center;gap:6px;margin-bottom:.5rem}
+.ai-sec-title i{font-size:14px;color:var(--gold)}
+.ai-sec-content{font-size:13px;color:var(--ink);line-height:1.75;white-space:pre-wrap}
+
+/* GUIDE */
+.guide-step{display:flex;gap:14px;margin-bottom:1.1rem;padding-bottom:1.1rem;border-bottom:1px solid var(--border)}
+.guide-step:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.guide-num{width:30px;height:30px;border-radius:50%;background:var(--ink);color:var(--gold);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Playfair Display',serif}
+.guide-body h4{font-size:13px;font-weight:600;margin-bottom:3px}
+.guide-body p{font-size:12px;color:var(--ink3);line-height:1.6}
+.guide-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+.guide-tag{font-size:10px;padding:2px 8px;border-radius:10px;background:var(--info-bg);color:var(--info);font-weight:500;border:1px solid var(--info-border)}
+
+/* PAYWALL */
+.paywall{background:var(--ink);border-radius:var(--radius-xl);padding:2.5rem;text-align:center;margin-bottom:1.5rem;position:relative;overflow:hidden}
+.paywall::before{content:'';position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(212,168,83,.1) 0%,transparent 70%);top:-80px;right:-80px}
+.paywall i.pw-icon{font-size:40px;color:var(--gold);display:block;margin-bottom:1rem}
+.paywall h2{font-family:'Playfair Display',serif;font-size:26px;color:#fff;margin-bottom:.5rem}
+.paywall p{font-size:13px;color:#9CA3AF;margin-bottom:1.5rem;line-height:1.6;max-width:420px;margin-left:auto;margin-right:auto}
+.plans{display:grid;grid-template-columns:1fr 1fr;gap:1rem;max-width:520px;margin:0 auto 1.5rem}
+.plan-card{background:#151B2B;border:1px solid #2D3748;border-radius:var(--radius-lg);padding:1.25rem;cursor:pointer;transition:all .2s;position:relative}
+.plan-card:hover,.plan-card.sel{border-color:var(--gold);background:#1A2236}
+.plan-card.sel::after{content:'✓';position:absolute;top:10px;right:12px;color:var(--gold);font-weight:700;font-size:14px}
+.plan-badge{font-size:10px;background:rgba(212,168,83,.2);color:var(--gold);padding:2px 8px;border-radius:10px;font-weight:600;margin-bottom:.5rem;display:inline-block}
+.plan-price{font-family:'Playfair Display',serif;font-size:26px;color:#fff}
+.plan-price sub{font-size:13px;font-family:'Outfit',sans-serif;color:#9CA3AF}
+.plan-name{font-size:12px;color:#9CA3AF;margin-top:4px}
+.plan-features{margin-top:.75rem}
+.plan-features li{font-size:11px;color:#9CA3AF;list-style:none;padding:2px 0;display:flex;align-items:center;gap:5px}
+.plan-features li::before{content:'✓';color:var(--gold);font-weight:700;font-size:10px}
+.paywall-btn{background:var(--gold);color:var(--ink);border:none;padding:12px 36px;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;transition:background .15s}
+.paywall-btn:hover{background:var(--gold2)}
+.paywall-btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* HERO */
+.hero{background:var(--ink);border-radius:var(--radius-xl);padding:2rem 2.5rem;margin-bottom:1.5rem;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;right:-60px;top:-60px;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,rgba(212,168,83,.1) 0%,transparent 70%)}
+.hero h1{font-family:'Playfair Display',serif;font-size:28px;color:#fff;margin-bottom:.4rem;line-height:1.2}
+.hero h1 span{color:var(--gold)}
+.hero p{font-size:13px;color:#9CA3AF;line-height:1.6;max-width:520px}
+.hero-meta{font-size:12px;color:rgba(212,168,83,.7);margin-top:.75rem}
+.hero-stats{display:flex;gap:2.5rem;margin-top:1.25rem;flex-wrap:wrap}
+.hero-stat-num{font-family:'Playfair Display',serif;font-size:22px;color:var(--gold)}
+.hero-stat-lbl{font-size:11px;color:#6B7280;margin-top:1px}
+
+/* EMPTY */
+.empty{text-align:center;padding:3rem 1rem;color:var(--ink3)}
+.empty i{font-size:40px;display:block;margin-bottom:12px;opacity:.3;color:var(--gold)}
+.empty p{font-size:13px}
+
+/* LOADING */
+.loading{text-align:center;padding:2.5rem;color:var(--ink3)}
+.loading i{font-size:32px;display:block;margin-bottom:10px;animation:spin 1.2s linear infinite;color:var(--gold)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading p{font-size:13px}
+
+hr.div{border:none;border-top:1px solid var(--border);margin:1.1rem 0}
+
+/* TOAST */
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--ink);color:#fff;padding:10px 16px;border-radius:9px;font-size:13px;border-left:3px solid var(--gold);box-shadow:var(--shadow-md);z-index:9999;transform:translateY(80px);opacity:0;transition:all .3s;display:flex;align-items:center;gap:8px}
+.toast.show{transform:translateY(0);opacity:1}
+
+@media(max-width:640px){
+  .form-grid,.form-grid.three{grid-template-columns:1fr}
+  .score-grid{grid-template-columns:1fr 1fr}
+  .plans{grid-template-columns:1fr}
+  .tabs{gap:0}
+  .hero{padding:1.5rem}
+  .hero h1{font-size:22px}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     AUTH SCREEN
+══════════════════════════════════════ -->
+<div class="screen active" id="auth-screen">
+  <div class="auth-box">
+    <div class="auth-logo">
+      <div class="auth-logo-icon"><i class="ti ti-file-certificate"></i></div>
+      <span class="auth-brand">Bid<span>Wise</span></span>
+    </div>
+    <p class="auth-tagline">AI-powered tender intelligence · by ProEdge Advisory</p>
+
+    <div class="auth-tabs">
+      <div class="auth-tab active" onclick="switchAuthTab('login')" id="at-login">Sign in</div>
+      <div class="auth-tab" onclick="switchAuthTab('register')" id="at-register">Create account</div>
+    </div>
+
+    <div id="login-form">
+      <div class="auth-field"><label>Email address</label><input type="email" id="login-email" placeholder="you@company.com"/></div>
+      <div class="auth-field"><label>Password</label><input type="password" id="login-password" placeholder="Your password"/></div>
+      <button class="auth-btn" onclick="login()">Sign in →</button>
+    </div>
+
+    <div id="register-form" style="display:none">
+      <div class="auth-field"><label>Company name</label><input type="text" id="reg-company" placeholder="Your company name"/></div>
+      <div class="auth-field"><label>Email address</label><input type="email" id="reg-email" placeholder="you@company.com"/></div>
+      <div class="auth-field"><label>Password</label><input type="password" id="reg-password" placeholder="Choose a strong password"/></div>
+      <button class="auth-btn" onclick="register()">Create free account →</button>
+    </div>
+
+    <p class="auth-error" id="auth-error"></p>
+    <p class="auth-free-note">Start free · <span>3 complimentary audits</span> included</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     APP SCREEN
+══════════════════════════════════════ -->
+<div class="screen" id="app-screen">
+  <nav class="nav">
+    <a class="nav-logo" href="#">
+      <div class="nav-logo-icon"><i class="ti ti-file-certificate"></i></div>
+      <span class="nav-brand-text">Bid<span>Wise</span></span>
+    </a>
+    <div class="nav-right">
+      <span class="nav-user" id="nav-user-email"></span>
+      <span class="nav-plan" id="nav-plan-badge">Free</span>
+      <button class="nav-logout" onclick="logout()"><i class="ti ti-logout" style="font-size:13px"></i> Sign out</button>
+    </div>
+  </nav>
+
+  <div class="tabs">
+    <div class="tab active" onclick="showPage('setup')" id="tab-setup"><i class="ti ti-settings"></i>Bid setup</div>
+    <div class="tab" onclick="showPage('checklist')" id="tab-checklist"><i class="ti ti-list-check"></i>Checklist <span class="tab-badge" id="missing-badge" style="display:none">0</span></div>
+    <div class="tab" onclick="showPage('tracker')" id="tab-tracker"><i class="ti ti-files"></i>Doc tracker</div>
+    <div class="tab" onclick="showPage('advisor')" id="tab-advisor"><i class="ti ti-robot"></i>AI advisor</div>
+    <div class="tab" onclick="showPage('guide')" id="tab-guide"><i class="ti ti-map"></i>Submit guide</div>
+    <div class="tab" onclick="showPage('account')" id="tab-account"><i class="ti ti-crown"></i>Account</div>
+  </div>
+
+  <div class="main">
+
+    <!-- PAGE: SETUP -->
+    <div class="page active" id="page-setup">
+      <div class="hero">
+        <h1>Win more <span>tenders.</span><br/>Miss nothing.</h1>
+        <p>BidWise guides you through every document, certificate, and regulatory requirement — so your bid is complete, compliant, and submitted on time.</p>
+        <div class="hero-meta" id="hero-free-count"></div>
+        <div class="hero-stats">
+          <div><div class="hero-stat-num">40+</div><div class="hero-stat-lbl">Document types</div></div>
+          <div><div class="hero-stat-num">15+</div><div class="hero-stat-lbl">Regulatory bodies</div></div>
+          <div><div class="hero-stat-num">12</div><div class="hero-stat-lbl">Sectors covered</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Company profile</div>
+        <div class="card-sub">Tell us about your company so we can tailor the checklist.</div>
+        <div class="form-grid">
+          <div class="field"><label>Company name</label><input id="companyName" type="text" placeholder="e.g. Zenith Energy Services Ltd"/></div>
+          <div class="field"><label>RC / Registration number</label><input id="rcNumber" type="text" placeholder="e.g. RC-1234567"/></div>
+          <div class="field"><label>Country of operation</label>
+            <select id="country">
+              <option value="Nigeria">Nigeria</option>
+              <option value="Ghana">Ghana</option>
+              <option value="Kenya">Kenya</option>
+              <option value="South Africa">South Africa</option>
+              <option value="UAE">UAE</option>
+              <option value="UK">United Kingdom</option>
+            </select>
+          </div>
+          <div class="field"><label>Company size</label>
+            <select id="companySize">
+              <option>1–10 employees</option>
+              <option selected>11–50 employees</option>
+              <option>51–200 employees</option>
+              <option>201–500 employees</option>
+              <option>500+ employees</option>
+            </select>
+          </div>
+          <div class="field full"><label>What does your company do?</label>
+            <textarea id="companyDesc" placeholder="Brief description of your services or products"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Tender details</div>
+        <div class="card-sub">Tell us about the specific tender you're bidding for.</div>
+        <div class="form-grid">
+          <div class="field"><label>Tender / project title</label><input id="tenderTitle" placeholder="e.g. Supply of Drilling Equipment — NNPCL"/></div>
+          <div class="field"><label>Procuring entity / client</label><input id="tenderClient" placeholder="e.g. NNPC Ltd / Shell / Federal Ministry"/></div>
+          <div class="field"><label>Tender type</label>
+            <select id="tenderType">
+              <option>Government tender (Federal)</option>
+              <option>Government tender (State)</option>
+              <option>International oil company (IOC)</option>
+              <option>National oil company (NOC)</option>
+              <option>Corporate / private sector</option>
+              <option>Multilateral / donor agency</option>
+            </select>
+          </div>
+          <div class="field"><label>Submission deadline</label><input id="deadline" type="date"/></div>
+          <div class="field"><label>Estimated contract value</label>
+            <select id="contractValue">
+              <option>Below ₦10 million</option>
+              <option>₦10M – ₦100M</option>
+              <option>₦100M – ₦500M</option>
+              <option>₦500M – ₦1B</option>
+              <option>Above ₦1B / International</option>
+            </select>
+          </div>
+          <div class="field"><label>Bid category</label>
+            <select id="bidCategory">
+              <option>Goods / supply</option>
+              <option>Works / construction</option>
+              <option>Services / consultancy</option>
+              <option>Oil & gas upstream</option>
+              <option>Oil & gas downstream</option>
+              <option>ICT / technology</option>
+              <option>Healthcare / pharma</option>
+              <option>Power / energy</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="sec-label"><i class="ti ti-grid-dots"></i> Select your sector(s)</div>
+        <div class="chips" id="sectorChips">
+          <div class="chip" onclick="toggleChip(this)" data-v="Oil & Gas"><i class="ti ti-flame"></i>Oil & Gas</div>
+          <div class="chip" onclick="toggleChip(this)" data-v="Power & Energy"><i class="ti ti-bolt"></i>Power & Energy</div>
+          <div class="chip" onclick="toggleChip(this)" data-v="Construction"><i class="ti ti-building"></i>Construction</div>
+          <div class="chip" onclick="toggleChip(this)" data-v="Telecoms & ICT"><i class="ti ti-antenna"></i>Telecoms & ICT</div>
+          <div class="chip" onclick="toggleChip(this)" data-v="Healthcare"><i class="ti ti-stethoscope"></i>Healthcare</div>
+          <div class="chip" onclick="toggleChip(this)" data-v="Agriculture"><i class="ti ti-plant"></i>Agriculture</div>
+          <div class="chip" onclick="toggleChip(this)" data-v="Manufacturing"><i class="ti ti-tools"></i>Manufacturing</div>
+          <div class="chip" onclick="toggleChip(this)" data-v="Food, Beverage & FMCG"><i class="ti ti-salad"></i>Food, Beverage & FMCG</div>
+          <div class="chip" onclick="toggleChip(this)" data-v="Finance & Banking"><i class="ti ti-coin"></i>Finance & Banking</div>
+          <div class="chip" onclick="toggleChip(this)" data-v="Logistics & Transport"><i class="ti ti-truck"></i>Logistics & Transport</div>
+          <div class="chip" onclick="toggleChip(this)" data-v="Education"><i class="ti ti-school"></i>Education</div>
+          <div class="chip" onclick="toggleChip(this)" data-v="Real Estate"><i class="ti ti-home"></i>Real Estate</div>
+        </div>
+        <div style="display:flex;justify-content:flex-end">
+          <button class="btn btn-primary" onclick="generateChecklist()"><i class="ti ti-wand"></i>Generate my bid checklist</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE: CHECKLIST -->
+    <div class="page" id="page-checklist">
+      <div class="card" id="cl-header" style="display:none">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+          <div>
+            <div class="card-title" id="cl-title">Bid checklist</div>
+            <div class="card-sub" id="cl-sub" style="margin-bottom:0">Loading...</div>
+          </div>
+          <div id="cl-status-badge"></div>
+        </div>
+        <div class="progress-wrap" style="margin-top:1rem;margin-bottom:0">
+          <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+          <div class="progress-labels"><span id="progress-done">0 of 0 ready</span><span id="progress-pct">0%</span></div>
+        </div>
+      </div>
+      <div class="score-grid" id="score-grid" style="display:none">
+        <div class="score-card highlight"><div class="score-num" id="sc-total">0</div><div class="score-lbl">Total docs</div></div>
+        <div class="score-card"><div class="score-num" id="sc-done" style="color:var(--success)">0</div><div class="score-lbl">Ready</div></div>
+        <div class="score-card"><div class="score-num" id="sc-missing" style="color:var(--danger)">0</div><div class="score-lbl">Missing</div></div>
+        <div class="score-card"><div class="score-num" id="sc-days">—</div><div class="score-lbl">Days left</div></div>
+      </div>
+      <div id="cl-body"><div class="empty"><i class="ti ti-list-check"></i><p>Fill in your bid setup to generate a personalised checklist.</p></div></div>
+    </div>
+
+    <!-- PAGE: TRACKER -->
+    <div class="page" id="page-tracker">
+      <div class="card">
+        <div class="card-title">Document tracker</div>
+        <div class="card-sub">Click any status to cycle: Missing → Have it → Expired → N/A</div>
+        <div id="tracker-body"><div class="empty"><i class="ti ti-files"></i><p>Generate your checklist first to populate the tracker.</p></div></div>
+      </div>
+    </div>
+
+    <!-- PAGE: ADVISOR -->
+    <div class="page" id="page-advisor">
+      <div class="card">
+        <div class="card-title">AI bid qualification advisor</div>
+        <div class="card-sub">Get a professional assessment of your readiness, gaps, and competitive strategy. Update your document statuses in the tracker first for the most accurate analysis.</div>
+        <button class="btn btn-primary" id="advisorBtn" onclick="runAdvisor()"><i class="ti ti-robot"></i>Analyse my bid readiness</button>
+      </div>
+      <div id="advisor-result"></div>
+    </div>
+
+    <!-- PAGE: GUIDE -->
+    <div class="page" id="page-guide">
+      <div id="guide-body"><div class="empty"><i class="ti ti-map"></i><p>Generate your checklist first to see your submission guide.</p></div></div>
+    </div>
+
+    <!-- PAGE: ACCOUNT -->
+    <div class="page" id="page-account">
+      <div id="account-body"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"><i class="ti ti-check"></i><span id="toast-msg"></span></div>
+
+<script>
+// ── CONFIG ──
+const API = 'https://YOUR-BACKEND-URL.onrender.com'; // ← change this after deployment
+// For local testing: const API = 'http://localhost:3001';
+
+// ── STATE ──
+let token = localStorage.getItem('bw_token') || '';
+let currentUser = null;
+let docList = [];
+let docStatuses = {};
+let sectors = [];
+let bidProfile = {};
+
+// ══════════════════════════════════════
+// BOOT
+// ══════════════════════════════════════
+(async function boot() {
+  if (token) {
+    try {
+      const r = await apiFetch('/api/auth/me');
+      currentUser = r.user;
+      showApp();
+    } catch { token = ''; localStorage.removeItem('bw_token'); }
+  }
+})();
+
+// ══════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════
+function switchAuthTab(tab) {
+  document.getElementById('login-form').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('register-form').style.display = tab === 'register' ? 'block' : 'none';
+  document.getElementById('at-login').classList.toggle('active', tab === 'login');
+  document.getElementById('at-register').classList.toggle('active', tab === 'register');
+  document.getElementById('auth-error').textContent = '';
+}
+
+async function login() {
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  try {
+    const r = await apiFetch('/api/auth/login', 'POST', { email, password });
+    token = r.token; currentUser = r.user;
+    localStorage.setItem('bw_token', token);
+    showApp();
+  } catch(e) {
+    document.getElementById('auth-error').textContent = e.message || 'Login failed';
+  }
+}
+
+async function register() {
+  const company = document.getElementById('reg-company').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const password = document.getElementById('reg-password').value;
+  try {
+    const r = await apiFetch('/api/auth/register', 'POST', { email, password, company });
+    token = r.token; currentUser = r.user;
+    localStorage.setItem('bw_token', token);
+    showApp();
+  } catch(e) {
+    document.getElementById('auth-error').textContent = e.message || 'Registration failed';
+  }
+}
+
+function logout() {
+  token = ''; currentUser = null;
+  localStorage.removeItem('bw_token');
+  document.getElementById('app-screen').classList.remove('active');
+  document.getElementById('auth-screen').classList.add('active');
+}
+
+function showApp() {
+  document.getElementById('auth-screen').classList.remove('active');
+  document.getElementById('app-screen').classList.add('active');
+  updateNavUser();
+  renderAccountPage();
+}
+
+function updateNavUser() {
+  if (!currentUser) return;
+  document.getElementById('nav-user-email').textContent = currentUser.company || currentUser.email;
+  const planBadge = document.getElementById('nav-plan-badge');
+  if (currentUser.subscribed) {
+    planBadge.textContent = currentUser.plan === 'annual' ? 'Pro Annual' : 'Pro';
+    planBadge.style.color = 'var(--gold)';
+  } else {
+    const rem = Math.max(0, 3 - (currentUser.freeUsage || 0));
+    planBadge.textContent = `Free (${rem} left)`;
+  }
+  const hfc = document.getElementById('hero-free-count');
+  if (currentUser.subscribed) {
+    hfc.textContent = '✓ Pro subscriber — unlimited audits';
+  } else {
+    hfc.textContent = `Free plan · ${Math.max(0, 3 - (currentUser.freeUsage || 0))} audits remaining`;
+  }
+}
+
+// ══════════════════════════════════════
+// PAGES & UI
+// ══════════════════════════════════════
+function showPage(p) {
+  document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+  document.getElementById('page-' + p).classList.add('active');
+  document.getElementById('tab-' + p).classList.add('active');
+  if (p === 'account') renderAccountPage();
+}
+
+function toggleChip(el) {
+  el.classList.toggle('sel');
+  sectors = Array.from(document.querySelectorAll('.chip.sel')).map(c => c.dataset.v);
+}
+
+function getDaysToDeadline() {
+  const d = document.getElementById('deadline').value;
+  if (!d) return null;
+  return Math.ceil((new Date(d) - new Date()) / 86400000);
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ══════════════════════════════════════
+// CHECKLIST GENERATION
+// ══════════════════════════════════════
+async function generateChecklist() {
+  const company = document.getElementById('companyName').value.trim();
+  const tenderTitle = document.getElementById('tenderTitle').value.trim();
+  if (!company || !tenderTitle || sectors.length === 0) {
+    toast('Please fill in company name, tender title, and select at least one sector.');
+    return;
+  }
+
+  bidProfile = {
+    company, country: document.getElementById('country').value,
+    tenderTitle, tenderType: document.getElementById('tenderType').value,
+    bidCat: document.getElementById('bidCategory').value,
+    tenderClient: document.getElementById('tenderClient').value.trim(),
+    contractValue: document.getElementById('contractValue').value,
+    companyDesc: document.getElementById('companyDesc').value,
+    companySize: document.getElementById('companySize').value,
+    sectors: sectors.join(', '),
+    deadline: document.getElementById('deadline').value
+  };
+
+  showPage('checklist');
+  document.getElementById('cl-body').innerHTML = '<div class="loading"><i class="ti ti-loader"></i><p>Generating your bid checklist with AI...</p></div>';
+  document.getElementById('cl-header').style.display = 'none';
+  document.getElementById('score-grid').style.display = 'none';
+
+  try {
+    const r = await apiFetch('/api/ai/checklist', 'POST', bidProfile);
+    docList = r.documents;
+    docStatuses = {};
+    docList.forEach(d => { docStatuses[d.id] = 'missing'; });
+    if (r.freeUsage !== undefined && currentUser) {
+      currentUser.freeUsage = r.freeUsage;
+      updateNavUser();
+    }
+    renderChecklist();
+    renderTracker();
+    renderGuide();
+    toast('Checklist generated successfully!');
+  } catch(e) {
+    if (e.code === 'SUBSCRIPTION_REQUIRED') {
+      showPage('account');
+      document.getElementById('cl-body').innerHTML = '';
+    } else {
+      document.getElementById('cl-body').innerHTML = `<p style="color:var(--danger);font-size:13px;padding:1rem">Error: ${e.message}</p>`;
+    }
+  }
+}
+
+function renderChecklist() {
+  const days = getDaysToDeadline();
+  document.getElementById('cl-header').style.display = 'block';
+  document.getElementById('score-grid').style.display = 'grid';
+  document.getElementById('cl-title').textContent = bidProfile.tenderTitle;
+  document.getElementById('cl-sub').textContent = `${bidProfile.company} · ${bidProfile.country} · ${bidProfile.sectors}`;
+  if (days !== null) document.getElementById('sc-days').textContent = days > 0 ? days : 'Overdue!';
+
+  const cats = [...new Set(docList.map(d => d.category))];
+  let html = '';
+  cats.forEach(cat => {
+    const items = docList.filter(d => d.category === cat);
+    html += `<div class="cl-group"><div class="cl-group-title"><i class="ti ti-folder"></i>${cat}</div><div class="checklist">`;
+    items.forEach(doc => {
+      const st = docStatuses[doc.id] || 'missing';
+      const cls = st === 'have' ? 'done' : st === 'expired' ? 'flagged' : st === 'na' ? 'na-item' : '';
+      html += `<div class="cl-item ${cls}" onclick="toggleDoc('${doc.id}')">
+        <div class="cl-checkbox"></div>
+        <div class="cl-body">
+          <div class="cl-name">${doc.name}</div>
+          <div class="cl-meta"><strong>${doc.issuingBody}</strong> · Valid: ${doc.validity} · ${doc.description}</div>
+          ${doc.tip ? `<div class="cl-tip"><i class="ti ti-bulb"></i>${doc.tip}</div>` : ''}
+        </div>
+        <span class="cl-badge ${doc.required ? 'req' : 'opt'}">${doc.required ? 'Required' : 'Optional'}</span>
+      </div>`;
+    });
+    html += '</div></div>';
+  });
+  document.getElementById('cl-body').innerHTML = html;
+  updateProgress();
+}
+
+function toggleDoc(id) {
+  const cycle = ['missing','have','expired','na'];
+  const cur = docStatuses[id] || 'missing';
+  docStatuses[id] = cycle[(cycle.indexOf(cur) + 1) % cycle.length];
+  renderChecklist();
+  renderTracker();
+}
+
+function updateProgress() {
+  const total = docList.length;
+  const done = Object.values(docStatuses).filter(s => s === 'have').length;
+  const missing = Object.values(docStatuses).filter(s => s === 'missing').length;
+  const pct = total > 0 ? Math.round(done / total * 100) : 0;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-done').textContent = `${done} of ${total} documents ready`;
+  document.getElementById('progress-pct').textContent = pct + '%';
+  document.getElementById('sc-total').textContent = total;
+  document.getElementById('sc-done').textContent = done;
+  document.getElementById('sc-missing').textContent = missing;
+  const badge = document.getElementById('cl-status-badge');
+  const mb = document.getElementById('missing-badge');
+  badge.innerHTML = pct >= 80
+    ? '<span class="status-pill ready"><i class="ti ti-circle-check"></i>Ready to bid</span>'
+    : pct >= 40
+    ? '<span class="status-pill partial"><i class="ti ti-alert-circle"></i>Partially ready</span>'
+    : '<span class="status-pill notready"><i class="ti ti-circle-x"></i>Not ready</span>';
+  mb.style.display = missing > 0 ? 'inline' : 'none';
+  mb.textContent = missing;
+}
+
+// ══════════════════════════════════════
+// TRACKER
+// ══════════════════════════════════════
+function renderTracker() {
+  if (!docList.length) return;
+  const sMap = { have:'have', missing:'missing', expired:'expired', na:'na' };
+  const lMap = { have:'Have it', missing:'Missing', expired:'Expired', na:'N/A' };
+  let html = `<div class="tracker-wrap"><table class="tracker"><thead><tr>
+    <th>Document</th><th>Issuing body</th><th>Category</th><th>Required</th><th>Validity</th><th>Status</th>
+  </tr></thead><tbody>`;
+  docList.forEach(doc => {
+    const st = docStatuses[doc.id] || 'missing';
+    html += `<tr>
+      <td><div style="font-weight:500">${doc.name}</div><div style="font-size:11px;color:var(--ink3);margin-top:2px">${doc.description}</div></td>
+      <td style="font-size:12px;color:var(--ink2);font-weight:500">${doc.issuingBody}</td>
+      <td style="font-size:11px;color:var(--ink3)">${doc.category}</td>
+      <td><span style="font-size:11px;font-weight:600;color:${doc.required ? 'var(--danger)' : 'var(--ink3)'}">${doc.required ? 'Required' : 'Optional'}</span></td>
+      <td style="font-size:12px;color:var(--ink3)">${doc.validity}</td>
+      <td><span class="doc-status ${sMap[st]}" onclick="toggleDoc('${doc.id}')">${lMap[st]}</span></td>
+    </tr>`;
+  });
+  html += '</tbody></table></div>';
+  document.getElementById('tracker-body').innerHTML = html;
+}
+
+// ══════════════════════════════════════
+// AI ADVISOR
+// ══════════════════════════════════════
+async function runAdvisor() {
+  if (!docList.length) { toast('Generate your checklist first.'); return; }
+  document.getElementById('advisorBtn').disabled = true;
+  document.getElementById('advisor-result').innerHTML = '<div class="loading"><i class="ti ti-loader"></i><p>Analysing your bid readiness...</p></div>';
+  const done = Object.entries(docStatuses).filter(([,v])=>v==='have').map(([k])=>docList.find(d=>d.id===k)?.name).filter(Boolean);
+  const missing = Object.entries(docStatuses).filter(([,v])=>v==='missing').map(([k])=>docList.find(d=>d.id===k)?.name).filter(Boolean);
+  const expired = Object.entries(docStatuses).filter(([,v])=>v==='expired').map(([k])=>docList.find(d=>d.id===k)?.name).filter(Boolean);
+  try {
+    const d = await apiFetch('/api/ai/advisor', 'POST', {
+      bidProfile: { ...bidProfile, daysToDeadline: getDaysToDeadline() },
+      docSummary: { done, missing, expired }
+    });
+    const sc = d.readinessScore || 0;
+    const scColor = sc >= 70 ? 'var(--success)' : sc >= 40 ? 'var(--warn)' : 'var(--danger)';
+    const vl = (d.verdict || '').toLowerCase();
+    const vcls = vl.includes('not') ? 'notready' : vl.includes('partial') ? 'partial' : 'ready';
+    document.getElementById('advisor-result').innerHTML = `
+      <div class="ai-result-card">
+        <div class="ai-score-header">
+          <div class="ai-score-circle">
+            <div class="ai-score-num" style="color:${scColor}">${sc}</div>
+            <div class="ai-score-lbl">Readiness score</div>
+          </div>
+          <div class="ai-verdict-block">
+            <h3>${d.verdict || 'Analysis complete'}</h3>
+            <p>${d.recommendation ? d.recommendation.split('\n')[0] : ''}</p>
+            <div style="margin-top:.75rem"><span class="status-pill ${vcls}"><i class="ti ti-${vcls==='ready'?'circle-check':vcls==='partial'?'alert-circle':'circle-x'}"></i>${d.verdict}</span></div>
+          </div>
+        </div>
+        <div class="ai-sections">
+          ${aiSec('ti-alert-triangle','Critical gaps',d.criticalGaps)}
+          ${aiSec('ti-bolt','Quick wins (next 48 hours)',d.quickWins)}
+          ${aiSec('ti-trophy','Competitive positioning',d.competitivePositioning)}
+          ${aiSec('ti-flag','Risk flags',d.riskFlags)}
+          ${aiSec('ti-message-circle','Full advisor recommendation',d.recommendation,true)}
+        </div>
+      </div>`;
+  } catch(e) {
+    document.getElementById('advisor-result').innerHTML = `<p style="color:var(--danger);font-size:13px;padding:1rem">Error: ${e.message}</p>`;
+  }
+  document.getElementById('advisorBtn').disabled = false;
+}
+
+function aiSec(icon, title, content, highlight) {
+  if (!content) return '';
+  return `<div class="ai-sec${highlight ? ' highlight' : ''}">
+    <div class="ai-sec-title"><i class="ti ${icon}"></i>${title}</div>
+    <div class="ai-sec-content">${content}</div>
+  </div>`;
+}
+
+// ══════════════════════════════════════
+// GUIDE
+// ══════════════════════════════════════
+function renderGuide() {
+  if (!docList.length) return;
+  const isNG = (bidProfile.country || 'Nigeria') === 'Nigeria';
+  const bodies = [...new Set(docList.map(d => d.issuingBody).filter(Boolean))];
+  const steps = [
+    { title:'Verify company registration & standing', body:`Confirm your company is active with the ${isNG?'Corporate Affairs Commission (CAC)':'company registry'}. Ensure annual returns are filed and your registration number is valid.`, tags: isNG?['CAC','Annual Returns','RC Number']:['Company Registry'] },
+    { title:'Obtain & renew all compliance certificates', body:`Collect certificates from all required bodies — ${isNG?'NSITF, ITF, PENCOM, FIRS (Tax Clearance 3 years), NIS':'all relevant regulatory bodies'}. Check expiry dates and renew anything expiring within 90 days.`, tags: bodies.slice(0,5) },
+    { title:'Prepare technical & financial documents', body:'Compile audited financial statements (3 years), company profile, capability statement, list of similar executed projects, CVs of key personnel, and relevant certifications (ISO, SON, etc.).', tags:['Audited Accounts','Company Profile','ISO Certification'] },
+    { title:'Compile and organise the bid package', body:'Follow the tender document instructions to the letter. Arrange all documents in the exact order specified. Paginate, tab, and label each section clearly. Never assume — if unsure, follow the RFP/ITT strictly.', tags:['Bid Document','Letter of Intent','Sworn Affidavit','Table of Contents'] },
+    { title:'Separate technical and financial bids (if required)', body:'Many tenders use a two-envelope system. The financial bid must be sealed separately and must NOT be visible in the technical submission. Label envelopes clearly with the tender reference number and your company name.', tags:['Two-Envelope','Technical Bid','Financial Bid'] },
+    { title:'Submit via the correct channel before deadline', body:`Verify whether submission is physical, via ${isNG?'BPP e-procurement portal, IOC portals (Ariba, Jaggaer)':'the official procurement portal'}, or both. Plan to submit at least 48 hours early to handle any last-minute issues. Never submit on deadline day.`, tags: isNG?['BPP Portal','Physical Delivery','IOC Portal','Ariba']:['Procurement Portal','Physical Delivery'] },
+    { title:'Obtain acknowledgement & monitor bid status', body:'Always get a submission receipt or reference number. Note the bid opening date and arrange to be represented if it is public. Follow up professionally if no response is received within the stated evaluation window.', tags:['Submission Receipt','Bid Opening','Follow-up Protocol'] }
+  ];
+  const uniqueBodies = [...new Set(docList.map(d=>d.issuingBody).filter(Boolean))];
+  let html = `<div class="card"><div class="card-title">Submission guide</div>
+    <div class="card-sub">${bidProfile.tenderTitle || 'Your bid'} · ${bidProfile.company}</div>`;
+  steps.forEach((s,i) => {
+    html += `<div class="guide-step">
+      <div class="guide-num">${i+1}</div>
+      <div class="guide-body"><h4>${s.title}</h4><p>${s.body}</p>
+        <div class="guide-tags">${s.tags.map(t=>`<span class="guide-tag">${t}</span>`).join('')}</div>
+      </div>
+    </div>`;
+  });
+  html += '</div>';
+  html += `<div class="card"><div class="card-title">Regulatory bodies for this bid</div>
+    <div class="card-sub">Based on your sector and country selection</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:10px">`;
+  uniqueBodies.forEach(b => {
+    const doc = docList.find(d => d.issuingBody === b);
+    html += `<div style="background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:11px 13px">
+      <div style="font-size:12px;font-weight:600;color:var(--ink)">${b}</div>
+      <div style="font-size:11px;color:var(--ink3);margin-top:3px">${doc?.name || ''}</div>
+    </div>`;
+  });
+  html += '</div></div>';
+  document.getElementById('guide-body').innerHTML = html;
+}
+
+// ══════════════════════════════════════
+// ACCOUNT PAGE
+// ══════════════════════════════════════
+function renderAccountPage() {
+  if (!currentUser) return;
+  const rem = Math.max(0, 3 - (currentUser.freeUsage || 0));
+  let html = '';
+  if (currentUser.subscribed) {
+    html += `<div class="card" style="border-color:var(--gold)">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:1rem">
+        <div style="width:44px;height:44px;background:var(--gold3);border-radius:10px;display:flex;align-items:center;justify-content:center"><i class="ti ti-crown" style="color:var(--gold);font-size:22px"></i></div>
+        <div><div class="card-title" style="margin-bottom:0">Pro subscriber</div><div style="font-size:12px;color:var(--ink3)">${currentUser.plan === 'annual' ? 'Annual plan' : 'Monthly plan'} · Expires ${currentUser.planExpiry ? new Date(currentUser.planExpiry).toLocaleDateString() : 'N/A'}</div></div>
+      </div>
+      <div style="font-size:13px;color:var(--ink2);line-height:1.7">✓ Unlimited bid checklists &nbsp;·&nbsp; ✓ AI advisor &nbsp;·&nbsp; ✓ All sectors &nbsp;·&nbsp; ✓ Submission guide &nbsp;·&nbsp; ✓ Full support</div>
+    </div>`;
+  } else {
+    html += `<div class="paywall">
+      <i class="ti ti-crown pw-icon"></i>
+      <h2>Upgrade to BidWise Pro</h2>
+      <p>You have <strong style="color:var(--gold)">${rem} free audit${rem===1?'':'s'}</strong> remaining. Upgrade for unlimited access to AI checklists, bid advisor, submission guides, and priority support.</p>
+      <div class="plans">
+        <div class="plan-card sel" id="plan-monthly" onclick="selectPlan('monthly')">
+          <div class="plan-badge">Monthly</div>
+          <div class="plan-price">₦15,000<sub>/month</sub></div>
+          <div class="plan-name">BidWise Pro</div>
+          <ul class="plan-features">
+            <li>Unlimited checklists</li>
+            <li>AI advisor access</li>
+            <li>All 12 sectors</li>
+            <li>Submission guides</li>
+          </ul>
+        </div>
+        <div class="plan-card" id="plan-annual" onclick="selectPlan('annual')">
+          <div class="plan-badge" style="background:rgba(212,168,83,.3)">Best value — save 33%</div>
+          <div class="plan-price">₦120,000<sub>/year</sub></div>
+          <div class="plan-name">BidWise Pro Annual</div>
+          <ul class="plan-features">
+            <li>Everything in monthly</li>
+            <li>Priority support</li>
+            <li>Early feature access</li>
+            <li>₦10,000/month equivalent</li>
+          </ul>
+        </div>
+      </div>
+      <button class="paywall-btn" id="pay-btn" onclick="initiatePayment()"><i class="ti ti-lock-open" style="font-size:15px;margin-right:6px"></i>Pay securely with Paystack</button>
+      <p style="font-size:11px;color:#6B7280;margin-top:.75rem;margin-bottom:0">Secured by Paystack · Card, Bank Transfer, USSD accepted</p>
+    </div>`;
+  }
+  html += `<div class="card">
+    <div class="card-title">Account details</div>
+    <div style="font-size:13px;color:var(--ink2);line-height:2">
+      <div><strong>Email:</strong> ${currentUser.email}</div>
+      <div><strong>Company:</strong> ${currentUser.company || '—'}</div>
+      <div><strong>Plan:</strong> ${currentUser.subscribed ? 'Pro (' + currentUser.plan + ')' : 'Free'}</div>
+      <div><strong>Audits used:</strong> ${currentUser.freeUsage || 0}</div>
+      <div><strong>Member since:</strong> ${currentUser.createdAt ? new Date(currentUser.createdAt).toLocaleDateString() : '—'}</div>
+    </div>
+    <hr class="div"/>
+    <div style="font-size:12px;color:var(--ink3)">
+      BidWise is a product of <strong>ProEdge Advisory</strong> · Built by Glory Akosa-Obidike<br/>
+      For support: <a href="mailto:hello@proedgeadvisory.com" style="color:var(--gold)">hello@proedgeadvisory.com</a>
+    </div>
+  </div>`;
+  document.getElementById('account-body').innerHTML = html;
+}
+
+let selectedPlan = 'monthly';
+function selectPlan(plan) {
+  selectedPlan = plan;
+  document.getElementById('plan-monthly')?.classList.toggle('sel', plan === 'monthly');
+  document.getElementById('plan-annual')?.classList.toggle('sel', plan === 'annual');
+}
+
+async function initiatePayment() {
+  const btn = document.getElementById('pay-btn');
+  btn.disabled = true; btn.textContent = 'Initialising...';
+  try {
+    const r = await apiFetch('/api/payment/init', 'POST', { plan: selectedPlan });
+    window.location.href = r.authorizationUrl;
+  } catch(e) {
+    toast('Payment init failed: ' + e.message);
+    btn.disabled = false; btn.innerHTML = '<i class="ti ti-lock-open" style="font-size:15px;margin-right:6px"></i>Pay securely with Paystack';
+  }
+}
+
+// Check for payment success redirect
+if (window.location.search.includes('reference=') || window.location.pathname.includes('payment-success')) {
+  const ref = new URLSearchParams(window.location.search).get('reference') || new URLSearchParams(window.location.search).get('trxref');
+  if (ref && token) {
+    apiFetch('/api/payment/verify', 'POST', { reference: ref }).then(r => {
+      currentUser = r.user;
+      updateNavUser();
+      history.replaceState({}, '', '/');
+      toast('Payment successful! Welcome to BidWise Pro 🎉');
+      renderAccountPage();
+    }).catch(() => {});
+  }
+}
+
+// ══════════════════════════════════════
+// API HELPER
+// ══════════════════════════════════════
+async function apiFetch(path, method = 'GET', body = null) {
+  const opts = {
+    method,
+    headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) }
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(API + path, opts);
+  const data = await res.json();
+  if (!res.ok) {
+    const err = new Error(data.message || data.error || 'Request failed');
+    err.code = data.error;
+    throw err;
+  }
+  return data;
+}
+</script>
+</body>
+</html>
