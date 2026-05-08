@@ -351,6 +351,7 @@ hr.div{border:none;border-top:1px solid var(--border);margin:1.1rem 0}
     <div class="tab" onclick="showPage('tracker')" id="tab-tracker"><i class="ti ti-files"></i>Doc tracker</div>
     <div class="tab" onclick="showPage('advisor')" id="tab-advisor"><i class="ti ti-robot"></i>AI advisor</div>
     <div class="tab" onclick="showPage('guide')" id="tab-guide"><i class="ti ti-map"></i>Submit guide</div>
+    <div class="tab" onclick="showPage('proposal')" id="tab-proposal"><i class="ti ti-writing"></i>Draft Proposal</div>
     <div class="tab" onclick="showPage('certificates')" id="tab-certificates"><i class="ti ti-certificate"></i>Certificates <span class="tab-badge" id="expiring-badge" style="display:none">0</span></div>
     <div class="tab" onclick="showPage('account')" id="tab-account"><i class="ti ti-crown"></i>Account</div>
   </div>
@@ -579,6 +580,83 @@ hr.div{border:none;border-top:1px solid var(--border);margin:1.1rem 0}
       <div id="analysis-result"></div>
     </div>
 
+    <!-- PAGE: DRAFT PROPOSAL -->
+    <div class="page" id="page-proposal">
+      <div class="hero">
+        <h1>AI-powered <span>proposal drafting.</span></h1>
+        <p>BidWise AI drafts professional bid documents in seconds — executive summaries, technical proposals, capability statements, compliance responses and covering letters — all tailored to your company and the specific tender.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">What would you like to draft?</div>
+        <div class="card-sub">Select a document type then fill in your details.</div>
+        <div class="chips" id="doc-type-chips">
+          <div class="chip sel" onclick="selectDocType(this,'executive_summary')" data-v="executive_summary"><i class="ti ti-file-text"></i>Executive Summary</div>
+          <div class="chip" onclick="selectDocType(this,'technical_proposal')" data-v="technical_proposal"><i class="ti ti-tools"></i>Technical Proposal</div>
+          <div class="chip" onclick="selectDocType(this,'capability_statement')" data-v="capability_statement"><i class="ti ti-building"></i>Capability Statement</div>
+          <div class="chip" onclick="selectDocType(this,'compliance_response')" data-v="compliance_response"><i class="ti ti-certificate"></i>Compliance Response</div>
+          <div class="chip" onclick="selectDocType(this,'covering_letter')" data-v="covering_letter"><i class="ti ti-mail"></i>Covering Letter</div>
+          <div class="chip" onclick="selectDocType(this,'financial_proposal')" data-v="financial_proposal"><i class="ti ti-coin"></i>Financial Narrative</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Company & tender details</div>
+        <div class="card-sub">The more detail you provide, the better the draft.</div>
+        <div class="form-grid">
+          <div class="field"><label>Company name</label><input id="prop-company" placeholder="e.g. Zenith Energy Services Ltd"/></div>
+          <div class="field"><label>Sector</label>
+            <select id="prop-sector">
+              <option>Oil & Gas</option><option>Construction</option><option>Food, Beverage & FMCG</option>
+              <option>Telecoms & ICT</option><option>Healthcare</option><option>Power & Energy</option>
+              <option>Manufacturing</option><option>Agriculture</option><option>Finance & Banking</option>
+              <option>Logistics & Transport</option><option>Education</option><option>Real Estate</option>
+            </select>
+          </div>
+          <div class="field"><label>Years of experience</label><input id="prop-years" placeholder="e.g. 12 years"/></div>
+          <div class="field"><label>Team / staff size</label><input id="prop-team" placeholder="e.g. 45 staff"/></div>
+          <div class="field full"><label>Company description & key services</label>
+            <textarea id="prop-desc" placeholder="Brief description of what your company does, your core services, and key achievements"></textarea>
+          </div>
+          <div class="field full"><label>Key strengths & differentiators</label>
+            <textarea id="prop-strengths" placeholder="e.g. ISO 9001 certified, 15 years in oil & gas, completed 50+ NNPC projects, local content compliance, experienced team..."></textarea>
+          </div>
+        </div>
+        <hr class="div"/>
+        <div class="form-grid">
+          <div class="field"><label>Tender / project title</label><input id="prop-tender" placeholder="e.g. Supply of Pipeline Equipment"/></div>
+          <div class="field"><label>Client / procuring entity</label><input id="prop-client" placeholder="e.g. NNPC Limited"/></div>
+          <div class="field"><label>Tender type</label>
+            <select id="prop-type">
+              <option>Government tender (Federal)</option><option>Government tender (State)</option>
+              <option>International oil company (IOC)</option><option>National oil company (NOC)</option>
+              <option>Corporate / private sector</option><option>Multilateral / donor agency</option>
+            </select>
+          </div>
+          <div class="field"><label>Contract value</label>
+            <select id="prop-value">
+              <option>Below ₦10 million</option><option>₦10M – ₦100M</option>
+              <option>₦100M – ₦500M</option><option>₦500M – ₦1B</option>
+              <option>Above ₦1B / International</option>
+            </select>
+          </div>
+          <div class="field full"><label>Scope of work (from tender document)</label>
+            <textarea id="prop-scope" placeholder="Describe what the contract involves — what goods/services/works are required"></textarea>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-primary" id="draftBtn" onclick="draftProposal()" style="flex:1;justify-content:center;padding:12px">
+            <i class="ti ti-writing"></i>Draft this document with AI
+          </button>
+          <button class="btn btn-outline" onclick="prefillProposalFromBid()" title="Auto-fill from your bid setup">
+            <i class="ti ti-wand"></i>Auto-fill from bid setup
+          </button>
+        </div>
+      </div>
+
+      <div id="proposal-result"></div>
+    </div>
+
     <!-- PAGE: CERTIFICATES -->
     <div class="page" id="page-certificates">
       <div class="hero">
@@ -703,7 +781,7 @@ hr.div{border:none;border-top:1px solid var(--border);margin:1.1rem 0}
 
 <script>
 // ── CONFIG ──
-const API = 'https://bidwise-backend.onrender.com'; // ← change this after deployment
+const API = 'https://YOUR-BACKEND-URL.onrender.com'; // ← change this after deployment
 // For local testing: const API = 'http://localhost:3001';
 
 // ── STATE ──
@@ -1334,8 +1412,107 @@ function prefillFromAnalysis() {
 }
 
 // ══════════════════════════════════════
-// CERTIFICATE TRACKER
+// PROPOSAL DRAFTING ENGINE
 // ══════════════════════════════════════
+let selectedDocType = 'executive_summary';
+
+function selectDocType(el, type) {
+  document.querySelectorAll('#doc-type-chips .chip').forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel');
+  selectedDocType = type;
+}
+
+function prefillProposalFromBid() {
+  if (bidProfile.company) document.getElementById('prop-company').value = bidProfile.company;
+  if (bidProfile.sectors) document.getElementById('prop-sector').value = bidProfile.sectors.split(',')[0].trim();
+  if (bidProfile.tenderTitle) document.getElementById('prop-tender').value = bidProfile.tenderTitle;
+  if (bidProfile.tenderClient) document.getElementById('prop-client').value = bidProfile.tenderClient;
+  if (bidProfile.tenderType) document.getElementById('prop-type').value = bidProfile.tenderType;
+  if (bidProfile.contractValue) document.getElementById('prop-value').value = bidProfile.contractValue;
+  if (bidProfile.companyDesc) document.getElementById('prop-desc').value = bidProfile.companyDesc;
+  toast('✓ Auto-filled from your bid setup!');
+}
+
+async function draftProposal() {
+  const company = document.getElementById('prop-company').value.trim();
+  const tenderTitle = document.getElementById('prop-tender').value.trim();
+  if (!company || !tenderTitle) { toast('Please enter company name and tender title.'); return; }
+
+  document.getElementById('draftBtn').disabled = true;
+  const docLabels = { executive_summary:'Executive Summary', technical_proposal:'Technical Proposal', capability_statement:'Capability Statement', compliance_response:'Compliance Response', covering_letter:'Covering Letter', financial_proposal:'Financial Narrative' };
+
+  document.getElementById('proposal-result').innerHTML = `
+    <div class="loading"><i class="ti ti-loader"></i>
+    <p>Drafting your ${docLabels[selectedDocType]}...<br/>
+    <span style="font-size:11px;color:var(--ink4)">Writing professionally tailored content</span></p></div>`;
+
+  try {
+    const r = await apiFetch('/api/ai/draft-proposal', 'POST', {
+      docType: selectedDocType,
+      company,
+      companyDesc: document.getElementById('prop-desc').value,
+      sector: document.getElementById('prop-sector').value,
+      country: bidProfile.country || 'Nigeria',
+      tenderTitle,
+      tenderClient: document.getElementById('prop-client').value,
+      tenderType: document.getElementById('prop-type').value,
+      scopeOfWork: document.getElementById('prop-scope').value,
+      contractValue: document.getElementById('prop-value').value,
+      keyStrengths: document.getElementById('prop-strengths').value,
+      yearsExperience: document.getElementById('prop-years').value,
+      teamSize: document.getElementById('prop-team').value
+    });
+    renderProposal(r.content, docLabels[selectedDocType], company, tenderTitle);
+  } catch(e) {
+    if (e.code === 'SUBSCRIPTION_REQUIRED') { showPage('account'); }
+    else { document.getElementById('proposal-result').innerHTML = `<p style="color:var(--danger);font-size:13px;padding:1rem">Error: ${e.message}</p>`; }
+  }
+  document.getElementById('draftBtn').disabled = false;
+}
+
+function renderProposal(content, docType, company, tender) {
+  // Convert markdown to HTML
+  const html = content
+    .replace(/^## (.+)$/gm, '<h2 style="font-family:\'Playfair Display\',serif;font-size:18px;color:var(--ink);margin:1.25rem 0 .5rem">$1</h2>')
+    .replace(/^### (.+)$/gm, '<h3 style="font-size:15px;font-weight:600;color:var(--ink2);margin:1rem 0 .4rem">$1</h3>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/^- (.+)$/gm, '<li style="margin:.3rem 0;padding-left:.5rem">$1</li>')
+    .replace(/(<li.*<\/li>\n?)+/g, '<ul style="padding-left:1.25rem;margin:.5rem 0">$&</ul>')
+    .replace(/\n\n/g, '</p><p style="margin:.75rem 0;line-height:1.8;font-size:13px">')
+    .replace(/\n/g, '<br/>');
+
+  document.getElementById('proposal-result').innerHTML = `
+    <div class="card" style="border-color:var(--gold)">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:1.25rem">
+        <div>
+          <div style="font-family:'Playfair Display',serif;font-size:18px;color:var(--ink)">${docType}</div>
+          <div style="font-size:12px;color:var(--ink3);margin-top:3px">${company} · ${tender}</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-outline" onclick="copyProposal()" style="font-size:12px;padding:7px 14px"><i class="ti ti-copy"></i>Copy text</button>
+          <button class="btn btn-primary" onclick="draftProposal()" style="font-size:12px;padding:7px 14px"><i class="ti ti-refresh"></i>Regenerate</button>
+        </div>
+      </div>
+      <hr class="div"/>
+      <div id="proposal-content" style="font-size:13px;color:var(--ink);line-height:1.8">
+        <p style="margin:.75rem 0;line-height:1.8;font-size:13px">${html}</p>
+      </div>
+      <hr class="div"/>
+      <div style="background:var(--gold3);border-radius:9px;padding:12px 16px;font-size:12px;color:var(--gold-dark);display:flex;align-items:center;gap:8px">
+        <i class="ti ti-info-circle" style="font-size:14px;flex-shrink:0"></i>
+        This is an AI-generated first draft. Review and personalise before submission. Add specific project references, actual figures, and your company's unique details.
+      </div>
+    </div>`;
+  window.lastProposalContent = content;
+}
+
+function copyProposal() {
+  if (!window.lastProposalContent) return;
+  navigator.clipboard.writeText(window.lastProposalContent).then(() => toast('✓ Copied to clipboard!'));
+}
+
+
 let certList = [];
 
 async function loadCertificates() {
