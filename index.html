@@ -278,6 +278,24 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--ink);min-h
 
 hr.div{border:none;border-top:1px solid var(--border);margin:1.1rem 0}
 
+/* OPPORTUNITY CARDS */
+.opp-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:.75rem;transition:all .2s}
+.opp-card:hover{border-color:var(--gold);box-shadow:var(--shadow-md)}
+.opp-card.urgent{border-left:3px solid var(--danger)}
+.opp-card.fresh{border-left:3px solid var(--success)}
+.opp-title{font-size:14px;font-weight:600;color:var(--ink);line-height:1.4;margin-bottom:3px}
+.opp-entity{font-size:12px;color:var(--ink3);margin-bottom:.6rem}
+.opp-meta{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:.6rem}
+.opp-tag{font-size:11px;padding:3px 9px;border-radius:20px;font-weight:500;display:inline-flex;align-items:center;gap:4px}
+.opp-tag.sector{background:var(--info-bg);color:var(--info);border:1px solid var(--info-border)}
+.opp-tag.deadline{background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn-border)}
+.opp-tag.deadline.hot{background:var(--danger-bg);color:var(--danger);border-color:var(--danger-border)}
+.opp-tag.value{background:var(--gold3);color:var(--gold-dark);border:1px solid var(--gold)}
+.opp-tag.source{background:var(--surface3);color:var(--ink3)}
+.opp-tag.new-tag{background:var(--success-bg);color:var(--success);border:1px solid var(--success-border)}
+.opp-desc{font-size:12px;color:var(--ink3);line-height:1.6;margin-bottom:.75rem}
+.opp-actions{display:flex;gap:8px;flex-wrap:wrap}
+
 /* TOAST */
 .toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--ink);color:#fff;padding:10px 16px;border-radius:9px;font-size:13px;border-left:3px solid var(--gold);box-shadow:var(--shadow-md);z-index:9999;transform:translateY(80px);opacity:0;transition:all .3s;display:flex;align-items:center;gap:8px}
 .toast.show{transform:translateY(0);opacity:1}
@@ -346,7 +364,8 @@ hr.div{border:none;border-top:1px solid var(--border);margin:1.1rem 0}
 
   <div class="tabs">
     <div class="tab active" onclick="showPage('setup')" id="tab-setup"><i class="ti ti-settings"></i>Bid setup</div>
-    <div class="tab" onclick="showPage('upload')" id="tab-upload"><i class="ti ti-upload"></i>Upload Tender <span style="font-size:9px;background:var(--gold);color:var(--ink);padding:1px 5px;border-radius:8px;font-weight:700;margin-left:2px">NEW</span></div>
+    <div class="tab" onclick="showPage('opportunities')" id="tab-opportunities"><i class="ti ti-building-bank"></i>Opportunities <span style="font-size:9px;background:var(--gold);color:var(--ink);padding:1px 5px;border-radius:8px;font-weight:700;margin-left:2px">NEW</span></div>
+    <div class="tab" onclick="showPage('upload')" id="tab-upload"><i class="ti ti-upload"></i>Upload Tender</div>
     <div class="tab" onclick="showPage('checklist')" id="tab-checklist"><i class="ti ti-list-check"></i>Checklist <span class="tab-badge" id="missing-badge" style="display:none">0</span></div>
     <div class="tab" onclick="showPage('tracker')" id="tab-tracker"><i class="ti ti-files"></i>Doc tracker</div>
     <div class="tab" onclick="showPage('advisor')" id="tab-advisor"><i class="ti ti-robot"></i>AI advisor</div>
@@ -511,6 +530,44 @@ hr.div{border:none;border-top:1px solid var(--border);margin:1.1rem 0}
     <!-- PAGE: GUIDE -->
     <div class="page" id="page-guide">
       <div id="guide-body"><div class="empty"><i class="ti ti-map"></i><p>Generate your checklist first to see your submission guide.</p></div></div>
+    </div>
+
+    <!-- PAGE: OPPORTUNITIES -->
+    <div class="page" id="page-opportunities">
+      <div class="hero">
+        <h1>Live tender <span>opportunities.</span></h1>
+        <p>Discover active tenders from Nigerian government agencies, oil companies, multilateral organisations and corporates. Filter by sector, search by keyword, and jump straight into your bid setup.</p>
+      </div>
+
+      <!-- Search & Filter Bar -->
+      <div class="card" style="margin-bottom:1rem">
+        <div style="display:grid;grid-template-columns:1fr auto;gap:10px;margin-bottom:.75rem">
+          <input id="opp-search" placeholder="Search tenders by keyword, agency, or sector..." style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 14px;font-size:13px;font-family:'Outfit',sans-serif;outline:none;width:100%" oninput="filterOpportunities()"/>
+          <button class="btn btn-primary" onclick="loadOpportunities()"><i class="ti ti-refresh"></i>Refresh</button>
+        </div>
+        <div class="chips" id="opp-filter-chips" style="margin-bottom:0">
+          <div class="chip sel" onclick="filterByCategory(this,'all')" data-cat="all">All</div>
+          <div class="chip" onclick="filterByCategory(this,'oil_gas')" data-cat="oil_gas"><i class="ti ti-flame"></i>Oil & Gas</div>
+          <div class="chip" onclick="filterByCategory(this,'construction')" data-cat="construction"><i class="ti ti-building"></i>Construction</div>
+          <div class="chip" onclick="filterByCategory(this,'ict')" data-cat="ict"><i class="ti ti-device-laptop"></i>ICT</div>
+          <div class="chip" onclick="filterByCategory(this,'healthcare')" data-cat="healthcare"><i class="ti ti-stethoscope"></i>Healthcare</div>
+          <div class="chip" onclick="filterByCategory(this,'fmcg')" data-cat="fmcg"><i class="ti ti-salad"></i>FMCG</div>
+          <div class="chip" onclick="filterByCategory(this,'power')" data-cat="power"><i class="ti ti-bolt"></i>Power</div>
+          <div class="chip" onclick="filterByCategory(this,'government')" data-cat="government"><i class="ti ti-building-bank"></i>Government</div>
+        </div>
+      </div>
+
+      <!-- Stats row -->
+      <div class="score-grid" style="margin-bottom:1rem">
+        <div class="score-card highlight"><div class="score-num" id="opp-total">0</div><div class="score-lbl">Active tenders</div></div>
+        <div class="score-card"><div class="score-num" id="opp-urgent" style="color:var(--danger)">0</div><div class="score-lbl">Closing soon</div></div>
+        <div class="score-card"><div class="score-num" id="opp-new" style="color:var(--success)">0</div><div class="score-lbl">Added this week</div></div>
+        <div class="score-card"><div class="score-num" id="opp-saved">0</div><div class="score-lbl">Saved</div></div>
+      </div>
+
+      <div id="opp-body">
+        <div class="loading"><i class="ti ti-loader"></i><p>Loading tender opportunities...</p></div>
+      </div>
     </div>
 
     <!-- PAGE: UPLOAD TENDER -->
@@ -886,6 +943,7 @@ function showPage(p) {
   document.getElementById('tab-' + p).classList.add('active');
   if (p === 'account') renderAccountPage();
   if (p === 'certificates') loadCertificates();
+  if (p === 'opportunities') loadOpportunities();
 }
 
 function toggleChip(el) {
@@ -1239,6 +1297,119 @@ if (window.location.search.includes('reference=') || window.location.pathname.in
   }
 }
 
+
+// ══════════════════════════════════════
+// TENDER OPPORTUNITIES BOARD — Phase 4
+// ══════════════════════════════════════
+let allOpportunities = [];
+let savedOpportunities = JSON.parse(localStorage.getItem('bw_saved_opps') || '[]');
+let activeCategory = 'all';
+
+async function loadOpportunities() {
+  document.getElementById('opp-body').innerHTML = '<div class="loading"><i class="ti ti-loader"></i><p>Finding live tender opportunities...</p></div>';
+  try {
+    const r = await apiFetch('/api/opportunities');
+    allOpportunities = r.opportunities || [];
+    renderOpportunities(allOpportunities);
+    updateOppStats(allOpportunities);
+  } catch(e) {
+    document.getElementById('opp-body').innerHTML = `<p style="color:var(--danger);font-size:13px;padding:1rem">Error: ${e.message}</p>`;
+  }
+}
+
+function filterByCategory(el, cat) {
+  document.querySelectorAll('#opp-filter-chips .chip').forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel');
+  activeCategory = cat;
+  filterOpportunities();
+}
+
+function filterOpportunities() {
+  const search = (document.getElementById('opp-search')?.value || '').toLowerCase();
+  let filtered = allOpportunities;
+  if (activeCategory !== 'all') filtered = filtered.filter(o => o.category === activeCategory);
+  if (search) filtered = filtered.filter(o =>
+    (o.title||'').toLowerCase().includes(search) ||
+    (o.entity||'').toLowerCase().includes(search) ||
+    (o.sector||'').toLowerCase().includes(search) ||
+    (o.description||'').toLowerCase().includes(search)
+  );
+  renderOpportunities(filtered);
+}
+
+function updateOppStats(opps) {
+  document.getElementById('opp-total').textContent = opps.length;
+  document.getElementById('opp-urgent').textContent = opps.filter(o => o.daysLeft !== null && o.daysLeft <= 14).length;
+  document.getElementById('opp-new').textContent = opps.filter(o => o.isNew).length;
+  document.getElementById('opp-saved').textContent = savedOpportunities.length;
+}
+
+function renderOpportunities(opps) {
+  if (!opps.length) {
+    document.getElementById('opp-body').innerHTML = '<div class="empty"><i class="ti ti-building-bank"></i><p>No opportunities found. Try a different filter.</p></div>';
+    return;
+  }
+  const icons = { oil_gas:'ti-flame', construction:'ti-building', ict:'ti-device-laptop', healthcare:'ti-stethoscope', fmcg:'ti-salad', power:'ti-bolt', government:'ti-building-bank' };
+  const colors = { oil_gas:'#7C3AED', construction:'#B45309', ict:'#1E40AF', healthcare:'#166534', fmcg:'#B45309', power:'#D97706', government:'#1E3A5F' };
+  let html = '';
+  opps.forEach(opp => {
+    const isSaved = savedOpportunities.includes(opp.id);
+    const isUrgent = opp.daysLeft !== null && opp.daysLeft <= 14;
+    const icon = icons[opp.category] || 'ti-briefcase';
+    const color = colors[opp.category] || '#374151';
+    html += `<div class="opp-card ${isUrgent ? 'urgent' : opp.isNew ? 'fresh' : ''}">
+      <div style="display:flex;align-items:flex-start;gap:12px">
+        <div style="width:38px;height:38px;border-radius:8px;background:${color}18;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <i class="ti ${icon}" style="font-size:18px;color:${color}"></i>
+        </div>
+        <div style="flex:1;min-width:0">
+          <div class="opp-title">${opp.title}</div>
+          <div class="opp-entity">${opp.entity} · ${opp.location || 'Nigeria'}</div>
+          <div class="opp-meta">
+            <span class="opp-tag sector">${opp.sector}</span>
+            ${opp.deadline ? `<span class="opp-tag deadline ${isUrgent?'hot':''}"><i class="ti ti-calendar-event" style="font-size:10px"></i>${opp.deadline}${opp.daysLeft!==null?' · '+opp.daysLeft+'d left':''}</span>` : ''}
+            ${opp.value ? `<span class="opp-tag value">₦${opp.value}</span>` : ''}
+            <span class="opp-tag source">${opp.source}</span>
+            ${opp.isNew ? `<span class="opp-tag new-tag">New</span>` : ''}
+          </div>
+          ${opp.description ? `<div class="opp-desc">${opp.description}</div>` : ''}
+          <div class="opp-actions">
+            <button class="btn btn-primary" style="font-size:11px;padding:6px 14px" onclick="startBidFromOpp('${opp.id}')"><i class="ti ti-wand"></i>Start bid setup</button>
+            ${opp.url ? `<a href="${opp.url}" target="_blank" class="btn btn-outline" style="font-size:11px;padding:6px 14px;text-decoration:none"><i class="ti ti-external-link"></i>View tender</a>` : ''}
+            <button class="btn btn-outline" style="font-size:11px;padding:6px 14px" onclick="toggleSaveOpp('${opp.id}',this)">
+              <i class="ti ${isSaved?'ti-bookmark-filled':'ti-bookmark'}" style="color:${isSaved?'var(--gold)':'inherit'}"></i>${isSaved?'Saved':'Save'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  });
+  document.getElementById('opp-body').innerHTML = html;
+}
+
+function toggleSaveOpp(id, btn) {
+  if (savedOpportunities.includes(id)) {
+    savedOpportunities = savedOpportunities.filter(s => s !== id);
+    btn.innerHTML = '<i class="ti ti-bookmark"></i>Save';
+    toast('Removed from saved.');
+  } else {
+    savedOpportunities.push(id);
+    btn.innerHTML = '<i class="ti ti-bookmark-filled" style="color:var(--gold)"></i>Saved';
+    toast('Saved!');
+  }
+  localStorage.setItem('bw_saved_opps', JSON.stringify(savedOpportunities));
+  document.getElementById('opp-saved').textContent = savedOpportunities.length;
+}
+
+function startBidFromOpp(id) {
+  const opp = allOpportunities.find(o => o.id === id);
+  if (!opp) return;
+  if (opp.title) document.getElementById('tenderTitle').value = opp.title;
+  if (opp.entity) document.getElementById('tenderClient').value = opp.entity;
+  if (opp.deadlineDate) document.getElementById('deadline').value = opp.deadlineDate;
+  showPage('setup');
+  toast('✓ Tender pre-loaded — complete your bid setup!');
+}
 
 // ══════════════════════════════════════
 // TENDER DOCUMENT UPLOAD & ANALYSIS
