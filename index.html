@@ -251,6 +251,31 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--ink);min-h
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading p{font-size:13px}
 
+/* CERTIFICATES */
+.cert-card{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border-radius:9px;border:1px solid var(--border);background:var(--surface);margin-bottom:8px;transition:all .15s}
+.cert-card:hover{border-color:var(--border2);box-shadow:var(--shadow)}
+.cert-card.cert-valid{border-left:3px solid var(--success)}
+.cert-card.cert-expiring{border-left:3px solid var(--gold);background:var(--gold3)}
+.cert-card.cert-urgent{border-left:3px solid var(--danger);background:var(--danger-bg)}
+.cert-card.cert-expired{border-left:3px solid var(--danger);opacity:.8}
+.cert-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cert-icon.valid{background:var(--success-bg)}
+.cert-icon.expiring{background:var(--gold3)}
+.cert-icon.urgent{background:var(--danger-bg)}
+.cert-icon.expired{background:var(--danger-bg)}
+.cert-body{flex:1}
+.cert-name{font-size:13px;font-weight:600;color:var(--ink)}
+.cert-meta{font-size:11px;color:var(--ink3);margin-top:3px;display:flex;gap:12px;flex-wrap:wrap}
+.cert-days{font-size:11px;font-weight:700;padding:2px 9px;border-radius:10px}
+.cert-days.valid{background:var(--success-bg);color:var(--success)}
+.cert-days.expiring{background:var(--warn-bg);color:var(--warn)}
+.cert-days.urgent{background:var(--danger-bg);color:var(--danger)}
+.cert-days.expired{background:var(--danger-bg);color:var(--danger)}
+.cert-actions{display:flex;gap:6px;flex-shrink:0}
+.cert-action-btn{background:transparent;border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer;color:var(--ink3);display:flex;align-items:center;gap:4px}
+.cert-action-btn:hover{background:var(--surface2)}
+.cert-action-btn.delete:hover{background:var(--danger-bg);color:var(--danger);border-color:var(--danger-border)}
+
 hr.div{border:none;border-top:1px solid var(--border);margin:1.1rem 0}
 
 /* TOAST */
@@ -326,6 +351,7 @@ hr.div{border:none;border-top:1px solid var(--border);margin:1.1rem 0}
     <div class="tab" onclick="showPage('tracker')" id="tab-tracker"><i class="ti ti-files"></i>Doc tracker</div>
     <div class="tab" onclick="showPage('advisor')" id="tab-advisor"><i class="ti ti-robot"></i>AI advisor</div>
     <div class="tab" onclick="showPage('guide')" id="tab-guide"><i class="ti ti-map"></i>Submit guide</div>
+    <div class="tab" onclick="showPage('certificates')" id="tab-certificates"><i class="ti ti-certificate"></i>Certificates <span class="tab-badge" id="expiring-badge" style="display:none">0</span></div>
     <div class="tab" onclick="showPage('account')" id="tab-account"><i class="ti ti-crown"></i>Account</div>
   </div>
 
@@ -553,6 +579,117 @@ hr.div{border:none;border-top:1px solid var(--border);margin:1.1rem 0}
       <div id="analysis-result"></div>
     </div>
 
+    <!-- PAGE: CERTIFICATES -->
+    <div class="page" id="page-certificates">
+      <div class="hero">
+        <h1>Certificate <span>expiry tracker.</span></h1>
+        <p>Track all your compliance certificates in one place. BidWise alerts you by email 30, 14, and 7 days before any certificate expires — so you never lose a bid to an expired document.</p>
+      </div>
+
+      <!-- Summary cards -->
+      <div class="score-grid" id="cert-score-grid">
+        <div class="score-card highlight"><div class="score-num" id="cert-total">0</div><div class="score-lbl">Total certificates</div></div>
+        <div class="score-card"><div class="score-num" id="cert-valid" style="color:var(--success)">0</div><div class="score-lbl">Valid</div></div>
+        <div class="score-card"><div class="score-num" id="cert-expiring" style="color:var(--warn)">0</div><div class="score-lbl">Expiring soon</div></div>
+        <div class="score-card"><div class="score-num" id="cert-expired" style="color:var(--danger)">0</div><div class="score-lbl">Expired</div></div>
+      </div>
+
+      <!-- Add certificate form -->
+      <div class="card" id="cert-form-card">
+        <div class="card-title" id="cert-form-title">Add certificate</div>
+        <div class="card-sub">Add a compliance certificate to track its expiry date.</div>
+        <input type="hidden" id="cert-edit-id"/>
+        <div class="form-grid">
+          <div class="field"><label>Certificate name</label>
+            <input id="cert-name" placeholder="e.g. NSITF Compliance Certificate"/>
+          </div>
+          <div class="field"><label>Issuing body</label>
+            <select id="cert-body">
+              <option value="">Select issuing body</option>
+              <option>NSITF</option><option>ITF</option><option>PENCOM</option>
+              <option>FIRS</option><option>CAC</option><option>DPR / NUPRC</option>
+              <option>NIS</option><option>SON</option><option>NAFDAC</option>
+              <option>CBN</option><option>SEC</option><option>NCDMB</option>
+              <option>NIMASA</option><option>NCAA</option><option>NESREA</option>
+              <option>SCUML</option><option>Other</option>
+            </select>
+          </div>
+          <div class="field"><label>Category</label>
+            <select id="cert-category">
+              <option>Compliance</option><option>Tax & Finance</option>
+              <option>Corporate/Legal</option><option>HR & Labour</option>
+              <option>Health, Safety & Environment</option><option>Technical</option>
+            </select>
+          </div>
+          <div class="field"><label>Issue date</label>
+            <input id="cert-issue" type="date"/>
+          </div>
+          <div class="field"><label>Expiry date</label>
+            <input id="cert-expiry" type="date"/>
+          </div>
+          <div class="field"><label>Status</label>
+            <select id="cert-status">
+              <option value="valid">Valid</option>
+              <option value="expired">Expired</option>
+              <option value="pending">Pending renewal</option>
+            </select>
+          </div>
+          <div class="field full"><label>Notes (optional)</label>
+            <input id="cert-notes" placeholder="e.g. Renewal in progress, contact officer name, etc."/>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="saveCertificate()"><i class="ti ti-plus"></i><span id="cert-save-btn-text">Add certificate</span></button>
+          <button class="btn btn-outline" id="cert-cancel-btn" onclick="cancelCertEdit()" style="display:none"><i class="ti ti-x"></i>Cancel</button>
+        </div>
+      </div>
+
+      <!-- Quick add common Nigerian certificates -->
+      <div class="card">
+        <div class="card-title" style="font-size:15px">Quick add common certificates</div>
+        <div class="card-sub" style="margin-bottom:.75rem">Click any certificate to pre-fill the form above.</div>
+        <div class="chips" id="quick-certs">
+          <div class="chip" onclick="quickAdd('NSITF Compliance Certificate','NSITF','Compliance')"><i class="ti ti-certificate"></i>NSITF</div>
+          <div class="chip" onclick="quickAdd('ITF Exemption Certificate','ITF','HR & Labour')"><i class="ti ti-certificate"></i>ITF</div>
+          <div class="chip" onclick="quickAdd('PENCOM Compliance Certificate','PENCOM','HR & Labour')"><i class="ti ti-certificate"></i>PENCOM</div>
+          <div class="chip" onclick="quickAdd('FIRS Tax Clearance Certificate','FIRS','Tax & Finance')"><i class="ti ti-certificate"></i>Tax Clearance</div>
+          <div class="chip" onclick="quickAdd('CAC Certificate of Incorporation','CAC','Corporate/Legal')"><i class="ti ti-certificate"></i>CAC</div>
+          <div class="chip" onclick="quickAdd('DPR/NUPRC Operating Licence','DPR / NUPRC','Technical')"><i class="ti ti-certificate"></i>DPR/NUPRC</div>
+          <div class="chip" onclick="quickAdd('NIS Certificate','NIS','Compliance')"><i class="ti ti-certificate"></i>NIS</div>
+          <div class="chip" onclick="quickAdd('SON Certification','SON','Technical')"><i class="ti ti-certificate"></i>SON</div>
+          <div class="chip" onclick="quickAdd('NAFDAC Registration','NAFDAC','Compliance')"><i class="ti ti-certificate"></i>NAFDAC</div>
+          <div class="chip" onclick="quickAdd('SCUML Certificate','SCUML','Compliance')"><i class="ti ti-certificate"></i>SCUML</div>
+        </div>
+      </div>
+
+      <!-- Email alert section -->
+      <div class="card" style="border-color:var(--gold)">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:1rem;flex-wrap:wrap">
+          <div style="width:40px;height:40px;background:var(--gold3);border-radius:9px;display:flex;align-items:center;justify-content:center">
+            <i class="ti ti-mail" style="color:var(--gold);font-size:20px"></i>
+          </div>
+          <div style="flex:1">
+            <div style="font-size:15px;font-weight:600;color:var(--ink)">Email expiry alerts</div>
+            <div style="font-size:12px;color:var(--ink3)">BidWise emails you automatically when certificates are expiring</div>
+          </div>
+          <button class="btn btn-gold" onclick="sendTestAlert()"><i class="ti ti-send"></i>Send me an expiry report now</button>
+        </div>
+        <div style="font-size:12px;color:var(--ink3);background:var(--surface2);border-radius:8px;padding:10px 12px;line-height:1.7">
+          ✓ Automatic daily check · ✓ 30-day advance warning · ✓ 14-day reminder · ✓ 7-day urgent alert<br/>
+          Alerts sent to: <strong id="alert-email-display"></strong>
+        </div>
+        <div id="alert-result" style="margin-top:.75rem"></div>
+      </div>
+
+      <!-- Certificates list -->
+      <div class="card">
+        <div class="card-title">Your certificates</div>
+        <div id="cert-list-body">
+          <div class="empty"><i class="ti ti-certificate"></i><p>No certificates added yet. Add your first certificate above.</p></div>
+        </div>
+      </div>
+    </div>
+
     <!-- PAGE: ACCOUNT -->
     <div class="page" id="page-account">
       <div id="account-body"></div>
@@ -566,7 +703,7 @@ hr.div{border:none;border-top:1px solid var(--border);margin:1.1rem 0}
 
 <script>
 // ── CONFIG ──
-const API = 'https://bidwise-backend.onrender.com'; // ← change this after deployment
+const API = 'https://YOUR-BACKEND-URL.onrender.com'; // ← change this after deployment
 // For local testing: const API = 'http://localhost:3001';
 
 // ── STATE ──
@@ -670,6 +807,7 @@ function showPage(p) {
   document.getElementById('page-' + p).classList.add('active');
   document.getElementById('tab-' + p).classList.add('active');
   if (p === 'account') renderAccountPage();
+  if (p === 'certificates') loadCertificates();
 }
 
 function toggleChip(el) {
@@ -1186,7 +1324,6 @@ function prefillFromAnalysis() {
   if (a.tenderTitle) document.getElementById('tenderTitle').value = a.tenderTitle;
   if (a.procuringEntity) document.getElementById('tenderClient').value = a.procuringEntity;
   if (a.submissionDeadline) {
-    // Try to parse date
     try {
       const d = new Date(a.submissionDeadline);
       if (!isNaN(d)) document.getElementById('deadline').value = d.toISOString().split('T')[0];
@@ -1196,6 +1333,175 @@ function prefillFromAnalysis() {
   toast('✓ Tender details auto-filled from your document!');
 }
 
+// ══════════════════════════════════════
+// CERTIFICATE TRACKER
+// ══════════════════════════════════════
+let certList = [];
+
+async function loadCertificates() {
+  try {
+    const r = await apiFetch('/api/certificates');
+    certList = r.certificates || [];
+    renderCertificates();
+    updateCertBadge();
+  } catch(e) { console.error('Failed to load certificates:', e); }
+}
+
+function getCertStatus(cert) {
+  if (!cert.expiryDate) return 'valid';
+  const today = new Date();
+  const expiry = new Date(cert.expiryDate);
+  const daysLeft = Math.ceil((expiry - today) / 86400000);
+  if (daysLeft < 0 || cert.status === 'expired') return 'expired';
+  if (daysLeft <= 7) return 'urgent';
+  if (daysLeft <= 30) return 'expiring';
+  return 'valid';
+}
+
+function getDaysLeft(cert) {
+  if (!cert.expiryDate) return null;
+  return Math.ceil((new Date(cert.expiryDate) - new Date()) / 86400000);
+}
+
+function renderCertificates() {
+  const total = certList.length;
+  const valid = certList.filter(c => getCertStatus(c) === 'valid').length;
+  const expiring = certList.filter(c => ['expiring','urgent'].includes(getCertStatus(c))).length;
+  const expired = certList.filter(c => getCertStatus(c) === 'expired').length;
+  document.getElementById('cert-total').textContent = total;
+  document.getElementById('cert-valid').textContent = valid;
+  document.getElementById('cert-expiring').textContent = expiring;
+  document.getElementById('cert-expired').textContent = expired;
+  const alertEmail = document.getElementById('alert-email-display');
+  if (alertEmail && currentUser) alertEmail.textContent = currentUser.email;
+  if (total === 0) {
+    document.getElementById('cert-list-body').innerHTML = '<div class="empty"><i class="ti ti-certificate"></i><p>No certificates added yet.</p></div>';
+    return;
+  }
+  const order = { urgent:0, expiring:1, valid:2, expired:3 };
+  const sorted = [...certList].sort((a,b) => order[getCertStatus(a)] - order[getCertStatus(b)]);
+  let html = '';
+  sorted.forEach(cert => {
+    const st = getCertStatus(cert);
+    const daysLeft = getDaysLeft(cert);
+    const daysLabel = daysLeft === null ? '' : daysLeft < 0 ? 'Expired' : daysLeft === 0 ? 'Expires today!' : `${daysLeft} days left`;
+    const iconColor = st === 'valid' ? 'var(--success)' : st === 'expiring' ? 'var(--gold)' : 'var(--danger)';
+    html += `<div class="cert-card cert-${st}">
+      <div class="cert-icon ${st}"><i class="ti ti-certificate" style="font-size:18px;color:${iconColor}"></i></div>
+      <div class="cert-body">
+        <div class="cert-name">${cert.name}</div>
+        <div class="cert-meta">
+          <span><i class="ti ti-building" style="font-size:10px"></i> ${cert.issuingBody}</span>
+          <span><i class="ti ti-tag" style="font-size:10px"></i> ${cert.category}</span>
+          ${cert.issueDate ? `<span>Issued: ${cert.issueDate}</span>` : ''}
+          ${cert.expiryDate ? `<span>Expires: ${cert.expiryDate}</span>` : ''}
+          ${cert.notes ? `<span>${cert.notes}</span>` : ''}
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+        ${daysLabel ? `<span class="cert-days ${st}">${daysLabel}</span>` : ''}
+        <div class="cert-actions">
+          <button class="cert-action-btn" onclick="editCert('${cert.id}')"><i class="ti ti-edit" style="font-size:11px"></i>Edit</button>
+          <button class="cert-action-btn delete" onclick="deleteCert('${cert.id}')"><i class="ti ti-trash" style="font-size:11px"></i></button>
+        </div>
+      </div>
+    </div>`;
+  });
+  document.getElementById('cert-list-body').innerHTML = html;
+}
+
+function updateCertBadge() {
+  const urgent = certList.filter(c => ['expiring','urgent','expired'].includes(getCertStatus(c))).length;
+  const badge = document.getElementById('expiring-badge');
+  if (badge) { badge.style.display = urgent > 0 ? 'inline' : 'none'; badge.textContent = urgent; }
+}
+
+async function saveCertificate() {
+  const name = document.getElementById('cert-name').value.trim();
+  const issuingBody = document.getElementById('cert-body').value;
+  if (!name || !issuingBody) { toast('Please enter certificate name and issuing body.'); return; }
+  const cert = {
+    id: document.getElementById('cert-edit-id').value || undefined,
+    name, issuingBody,
+    category: document.getElementById('cert-category').value,
+    issueDate: document.getElementById('cert-issue').value,
+    expiryDate: document.getElementById('cert-expiry').value,
+    status: document.getElementById('cert-status').value,
+    notes: document.getElementById('cert-notes').value.trim()
+  };
+  try {
+    const r = await apiFetch('/api/certificates', 'POST', cert);
+    const existing = certList.findIndex(c => c.id === r.certificate.id);
+    if (existing >= 0) certList[existing] = r.certificate;
+    else certList.push(r.certificate);
+    renderCertificates();
+    updateCertBadge();
+    clearCertForm();
+    toast(cert.id ? 'Certificate updated!' : 'Certificate added!');
+  } catch(e) { toast('Error: ' + e.message); }
+}
+
+function clearCertForm() {
+  ['cert-edit-id','cert-name','cert-issue','cert-expiry','cert-notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('cert-body').value = '';
+  document.getElementById('cert-category').value = 'Compliance';
+  document.getElementById('cert-status').value = 'valid';
+  document.getElementById('cert-form-title').textContent = 'Add certificate';
+  document.getElementById('cert-save-btn-text').textContent = 'Add certificate';
+  document.getElementById('cert-cancel-btn').style.display = 'none';
+}
+
+function cancelCertEdit() { clearCertForm(); }
+
+function editCert(id) {
+  const cert = certList.find(c => c.id === id);
+  if (!cert) return;
+  document.getElementById('cert-edit-id').value = cert.id;
+  document.getElementById('cert-name').value = cert.name;
+  document.getElementById('cert-body').value = cert.issuingBody;
+  document.getElementById('cert-category').value = cert.category || 'Compliance';
+  document.getElementById('cert-issue').value = cert.issueDate || '';
+  document.getElementById('cert-expiry').value = cert.expiryDate || '';
+  document.getElementById('cert-status').value = cert.status || 'valid';
+  document.getElementById('cert-notes').value = cert.notes || '';
+  document.getElementById('cert-form-title').textContent = 'Edit certificate';
+  document.getElementById('cert-save-btn-text').textContent = 'Save changes';
+  document.getElementById('cert-cancel-btn').style.display = 'inline-flex';
+  document.getElementById('cert-form-card').scrollIntoView({ behavior:'smooth' });
+}
+
+async function deleteCert(id) {
+  if (!confirm('Delete this certificate?')) return;
+  try {
+    await apiFetch(`/api/certificates/${id}`, 'DELETE');
+    certList = certList.filter(c => c.id !== id);
+    renderCertificates();
+    updateCertBadge();
+    toast('Certificate deleted.');
+  } catch(e) { toast('Error: ' + e.message); }
+}
+
+function quickAdd(name, body, category) {
+  document.getElementById('cert-name').value = name;
+  document.getElementById('cert-body').value = body;
+  document.getElementById('cert-category').value = category;
+  document.getElementById('cert-form-card').scrollIntoView({ behavior:'smooth' });
+  document.getElementById('cert-expiry').focus();
+  toast(`Pre-filled: ${name} — add the expiry date!`);
+}
+
+async function sendTestAlert() {
+  const btn = event.target.closest('button');
+  btn.disabled = true; btn.textContent = 'Sending...';
+  try {
+    const r = await apiFetch('/api/certificates/test-alert', 'POST');
+    document.getElementById('alert-result').innerHTML = `<div style="background:var(--success-bg);border:1px solid var(--success-border);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--success);display:flex;align-items:center;gap:8px"><i class="ti ti-check"></i>${r.message || 'Report sent!'}</div>`;
+  } catch(e) {
+    document.getElementById('alert-result').innerHTML = `<div style="background:var(--warn-bg);border:1px solid var(--warn-border);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--warn)">${e.message}</div>`;
+  }
+  btn.disabled = false;
+  btn.innerHTML = '<i class="ti ti-send"></i>Send me an expiry report now';
+}
 
 async function apiFetch(path, method = 'GET', body = null) {
   const opts = {
