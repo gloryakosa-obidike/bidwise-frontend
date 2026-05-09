@@ -911,8 +911,10 @@ function showApp() {
   document.getElementById('app-screen').classList.add('active');
   updateNavUser();
   renderAccountPage();
-  // Preload opportunities in background so they're ready when tab is clicked
-  setTimeout(() => loadOpportunities(), 1500);
+  // Preload opportunities after token is fully saved
+  setTimeout(() => {
+    if (token && allOpportunities.length === 0) loadOpportunities();
+  }, 2500);
 }
 
 function updateNavUser() {
