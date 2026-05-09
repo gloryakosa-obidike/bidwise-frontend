@@ -364,14 +364,14 @@ hr.div{border:none;border-top:1px solid var(--border);margin:1.1rem 0}
 
   <div class="tabs">
     <div class="tab active" onclick="showPage('setup')" id="tab-setup"><i class="ti ti-settings"></i>Bid setup</div>
-    <div class="tab" onclick="showPage('opportunities')" id="tab-opportunities"><i class="ti ti-building-bank"></i>Opportunities <span style="font-size:9px;background:var(--gold);color:var(--ink);padding:1px 5px;border-radius:8px;font-weight:700;margin-left:2px">NEW</span></div>
-    <div class="tab" onclick="showPage('upload')" id="tab-upload"><i class="ti ti-upload"></i>Upload Tender</div>
+    <div class="tab" onclick="showPageOrPaywall('opportunities')" id="tab-opportunities"><i class="ti ti-building-bank"></i>Opportunities <span style="font-size:9px;background:var(--gold);color:var(--ink);padding:1px 5px;border-radius:8px;font-weight:700;margin-left:2px">NEW</span></div>
+    <div class="tab" onclick="showPageOrPaywall('upload')" id="tab-upload"><i class="ti ti-upload"></i>Upload Tender <span class="premium-lock-icon" style="font-size:10px;color:var(--gold)">⭐</span></div>
     <div class="tab" onclick="showPage('checklist')" id="tab-checklist"><i class="ti ti-list-check"></i>Checklist <span class="tab-badge" id="missing-badge" style="display:none">0</span></div>
     <div class="tab" onclick="showPage('tracker')" id="tab-tracker"><i class="ti ti-files"></i>Doc tracker</div>
     <div class="tab" onclick="showPage('advisor')" id="tab-advisor"><i class="ti ti-robot"></i>AI advisor</div>
     <div class="tab" onclick="showPage('guide')" id="tab-guide"><i class="ti ti-map"></i>Submit guide</div>
-    <div class="tab" onclick="showPage('proposal')" id="tab-proposal"><i class="ti ti-writing"></i>Draft Proposal</div>
-    <div class="tab" onclick="showPage('certificates')" id="tab-certificates"><i class="ti ti-certificate"></i>Certificates <span class="tab-badge" id="expiring-badge" style="display:none">0</span></div>
+    <div class="tab" onclick="showPageOrPaywall('proposal')" id="tab-proposal"><i class="ti ti-writing"></i>Draft Proposal <span class="premium-lock-icon" style="font-size:10px;color:var(--gold)">⭐</span></div>
+    <div class="tab" onclick="showPageOrPaywall('certificates')" id="tab-certificates"><i class="ti ti-certificate"></i>Certificates <span class="tab-badge" id="expiring-badge" style="display:none">0</span></div>
     <div class="tab" onclick="showPage('account')" id="tab-account"><i class="ti ti-crown"></i>Account</div>
   </div>
 
@@ -911,9 +911,10 @@ function showApp() {
   document.getElementById('app-screen').classList.add('active');
   updateNavUser();
   renderAccountPage();
-  // Preload opportunities after token is fully saved
+  updateTabLocks();
+  // Preload opportunities for premium users after login
   setTimeout(() => {
-    if (token && allOpportunities.length === 0) loadOpportunities();
+    if (token && isPremiumUser() && allOpportunities.length === 0) loadOpportunities();
   }, 2500);
 }
 
@@ -947,6 +948,87 @@ function showPage(p) {
   if (p === 'account') renderAccountPage();
   if (p === 'certificates') loadCertificates();
   if (p === 'opportunities' && allOpportunities.length === 0) loadOpportunities();
+}
+
+// Premium pages that require subscription
+const PREMIUM_PAGES = ['opportunities', 'upload', 'proposal', 'certificates'];
+const ADMIN_EMAIL = 'admin.proedge@gmail.com';
+
+function isPremiumUser() {
+  if (!currentUser) return false;
+  if (currentUser.email === ADMIN_EMAIL) return true;
+  if (currentUser.subscribed) return true;
+  return false;
+}
+
+function showPageOrPaywall(p) {
+  if (isPremiumUser()) {
+    showPage(p);
+  } else {
+    showPremiumWall(p);
+  }
+}
+
+function showPremiumWall(page) {
+  const pageLabels = {
+    opportunities: 'Tender Opportunities Board',
+    upload: 'AI Tender Document Analysis',
+    proposal: 'AI Proposal Drafting',
+    certificates: 'Certificate Expiry Tracker'
+  };
+  document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+  document.getElementById('tab-' + page)?.classList.add('active');
+  // Show paywall in the page area
+  const mainDiv = document.querySelector('.main');
+  // Remove existing premium wall if any
+  const existing = document.getElementById('premium-wall-page');
+  if (existing) existing.remove();
+  const wall = document.createElement('div');
+  wall.id = 'premium-wall-page';
+  wall.className = 'page active';
+  wall.innerHTML = `
+    <div class="paywall" style="margin-top:2rem">
+      <i class="ti ti-crown pw-icon"></i>
+      <h2>Unlock ${pageLabels[page] || 'Premium Feature'}</h2>
+      <p>This feature is available on BidWise Pro. Upgrade now for unlimited access to AI-powered tender intelligence — checklists, document analysis, proposal drafting, certificate tracking and live opportunities.</p>
+      <div class="plans">
+        <div class="plan-card sel" id="pw-plan-monthly" onclick="selectPlan('monthly');document.getElementById('pw-plan-monthly').classList.add('sel');document.getElementById('pw-plan-annual').classList.remove('sel')">
+          <div class="plan-badge">Monthly</div>
+          <div class="plan-price">₦15,000<sub>/month</sub></div>
+          <div class="plan-name">BidWise Pro</div>
+          <ul class="plan-features">
+            <li>Unlimited checklists</li>
+            <li>AI tender analysis</li>
+            <li>Proposal drafting</li>
+            <li>Certificate tracker</li>
+            <li>Live opportunities</li>
+          </ul>
+        </div>
+        <div class="plan-card" id="pw-plan-annual" onclick="selectPlan('annual');document.getElementById('pw-plan-annual').classList.add('sel');document.getElementById('pw-plan-monthly').classList.remove('sel')">
+          <div class="plan-badge" style="background:rgba(212,168,83,.3)">Best value — save 33%</div>
+          <div class="plan-price">₦120,000<sub>/year</sub></div>
+          <div class="plan-name">BidWise Pro Annual</div>
+          <ul class="plan-features">
+            <li>Everything in monthly</li>
+            <li>Priority support</li>
+            <li>Early feature access</li>
+            <li>₦10,000/month equivalent</li>
+          </ul>
+        </div>
+      </div>
+      <button class="paywall-btn" onclick="initiatePayment()"><i class="ti ti-lock-open" style="font-size:15px;margin-right:6px"></i>Upgrade to BidWise Pro</button>
+      <p style="font-size:11px;color:#6B7280;margin-top:.75rem;margin-bottom:0">Secured by Paystack · Card, Bank Transfer, USSD · Cancel anytime</p>
+    </div>`;
+  mainDiv.appendChild(wall);
+}
+
+function updateTabLocks() {
+  const premium = isPremiumUser();
+  const lockSpans = document.querySelectorAll('.premium-lock-icon');
+  lockSpans.forEach(s => {
+    s.style.display = premium ? 'none' : 'inline';
+  });
 }
 
 function toggleChip(el) {
