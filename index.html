@@ -911,6 +911,8 @@ function showApp() {
   document.getElementById('app-screen').classList.add('active');
   updateNavUser();
   renderAccountPage();
+  // Preload opportunities in background so they're ready when tab is clicked
+  setTimeout(() => loadOpportunities(), 1500);
 }
 
 function updateNavUser() {
@@ -942,7 +944,7 @@ function showPage(p) {
   document.getElementById('tab-' + p).classList.add('active');
   if (p === 'account') renderAccountPage();
   if (p === 'certificates') loadCertificates();
-  if (p === 'opportunities') loadOpportunities();
+  if (p === 'opportunities' && allOpportunities.length === 0) loadOpportunities();
 }
 
 function toggleChip(el) {
